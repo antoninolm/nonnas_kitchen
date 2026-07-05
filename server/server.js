@@ -4,6 +4,7 @@ import helmet from "helmet";
 import connectDB from "./db.js";
 import authRouter from "./routes/auth.js";
 import hostsRouter from "./routes/hosts.js";
+import experiencesRouter from "./routes/experiences.js";
 
 const PORT = 8080;
 
@@ -24,6 +25,7 @@ app.get("/api/v1/health", (req, res) => {
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/hosts", hostsRouter);
+app.use("/api/v1/experiences", experiencesRouter);
 
 connectDB(process.env.MONGODB_URI)
   .then(() => {
