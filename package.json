@@ -1,0 +1,12 @@
+{
+  "name": "nonnas-kitchen",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write server client",
+    "format:check": "prettier --check server client"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.4"
+  }
+}
