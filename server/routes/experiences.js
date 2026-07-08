@@ -1,9 +1,14 @@
 import { Router } from "express";
 import Experience from "../models/Experience.js";
+import HostProfile from "../models/HostProfile.js";
 import requireAuth from "../middleware/auth.js";
 import { findManagedHost } from "../middleware/requireManager.js";
 
 const router = Router();
+
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 router.post("/", requireAuth, async (req, res) => {
   const {
@@ -140,6 +145,62 @@ router.delete("/:id", requireAuth, async (req, res) => {
 
     experience.status = "cancelled";
     await experience.save();
+    res.json(experience);
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Experience not found" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/", async (req, res) => {
+  const { city, tag, from, q } = req.query;
+  const filter = { status: "published" };
+
+  try {
+    if (city) {
+      const hosts = await HostProfile.find(
+        { city: { $regex: `^${escapeRegExp(city)}$`, $options: "i" } },
+        "_id",
+      );
+      filter.host = { $in: hosts.map((h) => h._id) };
+    }
+
+    if (tag) {
+      filter.tags = tag;
+    }
+
+    if (from) {
+      const fromDate = new Date(from);
+      if (isNaN(fromDate.getTime())) {
+        return res.status(400).json({ error: "Invalid 'from' date" });
+      }
+      filter.date = { $gte: fromDate };
+    }
+
+    if (q) {
+      const regex = { $regex: escapeRegExp(q), $options: "i" };
+      filter.$or = [{ title: regex }, { recipeName: regex }];
+    }
+
+    const experiences = await Experience.find(filter).sort({ date: 1 });
+    res.json(experiences);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const experience = await Experience.findOne({
+      _id: req.params.id,
+      status: "published",
+    }).populate("host", "displayName city verified photos");
+
+    if (!experience) {
+      return res.status(404).json({ error: "Experience not found" });
+    }
     res.json(experience);
   } catch (err) {
     if (err.name === "CastError") {
