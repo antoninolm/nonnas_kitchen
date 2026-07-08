@@ -1,5 +1,22 @@
 {
   "nav.brand": "Nonna's Kitchen",
   "nav.experiences": "Esperienze",
-  "common.switchLanguage": "Cambia lingua"
+  "nav.login": "Accedi",
+  "nav.register": "Registrati",
+  "nav.logout": "Esci",
+  "nav.hi": "Ciao",
+  "common.switchLanguage": "Cambia lingua",
+  "auth.login.title": "Accedi",
+  "auth.login.email": "Email",
+  "auth.login.password": "Password",
+  "auth.login.submit": "Accedi",
+  "auth.register.title": "Registrati",
+  "auth.register.name": "Nome",
+  "auth.register.email": "Email",
+  "auth.register.password": "Password",
+  "auth.register.submit": "Registrati",
+  "auth.errors.invalidCredentials": "Email o password non validi.",
+  "auth.errors.emailTaken": "Questa email è già registrata.",
+  "auth.errors.missingFields": "Compila tutti i campi.",
+  "auth.errors.generic": "Qualcosa è andato storto. Riprova."
 }
