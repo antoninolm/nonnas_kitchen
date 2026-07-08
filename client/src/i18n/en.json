@@ -18,5 +18,19 @@
   "auth.errors.invalidCredentials": "Invalid email or password.",
   "auth.errors.emailTaken": "This email is already registered.",
   "auth.errors.missingFields": "Please fill in all fields.",
-  "auth.errors.generic": "Something went wrong. Please try again."
+  "auth.errors.generic": "Something went wrong. Please try again.",
+  "common.loading": "Loading...",
+  "common.error": "Something went wrong. Please try again.",
+  "experiences.filters.city": "City",
+  "experiences.filters.tag": "Tag",
+  "experiences.filters.from": "From date",
+  "experiences.empty": "No experiences match your filters.",
+  "experiences.seatsLeft": "seats left",
+  "experiences.detail.book": "Book",
+  "experiences.detail.bookComingSoon": "Booking is coming soon!",
+  "experiences.detail.verified": "Verified nonna",
+  "home.hero.title": "Cook, eat and share with an Italian nonna",
+  "home.hero.subtitle": "Book a hands-on culinary experience straight from someone's home kitchen.",
+  "home.hero.cta": "Browse experiences",
+  "home.featured.title": "Featured experiences"
 }

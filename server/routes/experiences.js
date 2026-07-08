@@ -184,7 +184,9 @@ router.get("/", async (req, res) => {
       filter.$or = [{ title: regex }, { recipeName: regex }];
     }
 
-    const experiences = await Experience.find(filter).sort({ date: 1 });
+    const experiences = await Experience.find(filter)
+      .sort({ date: 1 })
+      .populate("host", "displayName city verified photos");
     res.json(experiences);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });

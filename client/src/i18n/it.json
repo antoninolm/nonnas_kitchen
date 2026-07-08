@@ -18,5 +18,19 @@
   "auth.errors.invalidCredentials": "Email o password non validi.",
   "auth.errors.emailTaken": "Questa email è già registrata.",
   "auth.errors.missingFields": "Compila tutti i campi.",
-  "auth.errors.generic": "Qualcosa è andato storto. Riprova."
+  "auth.errors.generic": "Qualcosa è andato storto. Riprova.",
+  "common.loading": "Caricamento...",
+  "common.error": "Qualcosa è andato storto. Riprova.",
+  "experiences.filters.city": "Città",
+  "experiences.filters.tag": "Tag",
+  "experiences.filters.from": "A partire dal",
+  "experiences.empty": "Nessuna esperienza corrisponde ai filtri.",
+  "experiences.seatsLeft": "posti rimasti",
+  "experiences.detail.book": "Prenota",
+  "experiences.detail.bookComingSoon": "Le prenotazioni arriveranno presto!",
+  "experiences.detail.verified": "Nonna verificata",
+  "home.hero.title": "Cucina, mangia e condividi con una nonna italiana",
+  "home.hero.subtitle": "Prenota un'esperienza culinaria pratica direttamente nella cucina di casa.",
+  "home.hero.cta": "Esplora le esperienze",
+  "home.featured.title": "Esperienze in evidenza"
 }
