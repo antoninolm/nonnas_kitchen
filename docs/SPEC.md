@@ -81,7 +81,7 @@ RouteProtectedContent/—Landing + featured experiences/experiences—List with 
 State & patterns
 
 
-AuthContext: current user + token (persisted, attached to fetches)
+AuthContext: current user + token (in-memory state, attached to fetches — no localStorage; a refresh clears the session, same as the language choice. Decided in Task 7: simplicity over persistence for the MVP)
 LanguageContext + useTranslation() hook: i18n (see section 5)
 Custom hook useFetch(url): loading / error / data handling
 useMemo for client-side filtering of the experience list
