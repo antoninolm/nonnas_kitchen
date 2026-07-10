@@ -6,7 +6,7 @@ import authRouter from "./routes/auth.js";
 import hostsRouter from "./routes/hosts.js";
 import experiencesRouter from "./routes/experiences.js";
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 if (!process.env.MONGODB_URI) {
   console.error(
