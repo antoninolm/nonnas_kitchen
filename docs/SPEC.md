@@ -64,6 +64,8 @@ Payments
 
 MethodRouteProtectionNotesPOST/api/create-checkout-sessionJWTVercel serverless function, Stripe Checkout
 
+Note: Experience has no city field of its own — city lives on HostProfile. The city filter on GET /experiences resolves in two steps: first find matching HostProfile ids by city, then query Experience with host: { $in: ids }. Decided in Task 5.
+
 Cross-cutting rules
 
 
