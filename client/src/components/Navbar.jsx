@@ -16,6 +16,7 @@ function Navbar() {
             <span>
               {t("nav.hi")}, {user.name}
             </span>
+            <Link to="/dashboard">{t("nav.dashboard")}</Link>
             <button type="button" onClick={logout}>
               {t("nav.logout")}
             </button>

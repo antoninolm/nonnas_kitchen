@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useCallback, useState } from "react";
 
 export const AuthContext = createContext(null);
 
@@ -36,16 +36,35 @@ export function AuthProvider({ children }) {
     setToken(null);
   }
 
-  function authFetch(url, options = {}) {
-    return fetch(url, {
-      ...options,
-      headers: { ...options.headers, Authorization: `Bearer ${token}` },
-    });
-  }
+  const authFetch = useCallback(
+    (url, options = {}) =>
+      fetch(url, {
+        ...options,
+        headers: { ...options.headers, Authorization: `Bearer ${token}` },
+      }),
+    [token],
+  );
+
+  const authFetchJSON = useCallback(
+    async (url, options = {}) => {
+      const res = await authFetch(url, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...options.headers },
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw { status: res.status, message: data.error };
+      }
+
+      return data;
+    },
+    [authFetch],
+  );
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, authFetch }}
+      value={{ user, token, login, register, logout, authFetch, authFetchJSON }}
     >
       {children}
     </AuthContext.Provider>

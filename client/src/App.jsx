@@ -1,10 +1,15 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
+import RequireAuth from "./components/RequireAuth.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Experiences from "./pages/Experiences.jsx";
 import ExperienceDetail from "./pages/ExperienceDetail.jsx";
+import HostProfile from "./pages/HostProfile.jsx";
+import HostNew from "./pages/HostNew.jsx";
+import HostExperienceNew from "./pages/HostExperienceNew.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 
 function App() {
   return (
@@ -16,6 +21,31 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/experiences" element={<Experiences />} />
         <Route path="/experiences/:id" element={<ExperienceDetail />} />
+        <Route
+          path="/hosts/new"
+          element={
+            <RequireAuth>
+              <HostNew />
+            </RequireAuth>
+          }
+        />
+        <Route path="/hosts/:id" element={<HostProfile />} />
+        <Route
+          path="/hosts/:id/experiences/new"
+          element={
+            <RequireAuth>
+              <HostExperienceNew />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <Dashboard />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </>
   );

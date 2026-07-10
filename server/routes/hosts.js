@@ -44,6 +44,15 @@ router.patch("/:id", requireAuth, requireHostManager, async (req, res) => {
   }
 });
 
+router.get("/mine", requireAuth, async (req, res) => {
+  try {
+    const hosts = await HostProfile.find({ managers: req.user.id });
+    res.json(hosts);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const host = await HostProfile.findById(req.params.id).select("-managers");

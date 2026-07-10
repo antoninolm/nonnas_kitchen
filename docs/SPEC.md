@@ -50,11 +50,11 @@ MethodRouteProtectionNotesPOST/auth/register—bcrypt 10 roundsPOST/auth/login�
 
 Public
 
-MethodRouteProtectionNotesGET/experiences—query params: city, tag, from (date), q (text search on title/recipeName). Only status=published. Never addressGET/experiences/:id—without addressGET/hosts/:id—public profile + aggregated reviews
+MethodRouteProtectionNotesGET/experiences—query params: city, tag, from (date), q (text search on title/recipeName), host (id, a specific host's experiences). Only status=published. Never addressGET/experiences/:id—without addressGET/hosts/:id—public profile + aggregated reviews
 
 Host management (middleware: JWT + user ∈ managers)
 
-MethodRouteProtectionNotesPOST/hostsJWTcreator becomes first managerPATCH/hosts/:idmanagerPOST/experiencesmanagerhost must be managed by the userPATCH/experiences/:idmanagerDELETE/experiences/:idmanageronly if status=draft, otherwise → cancelledGET/hosts/:id/bookingsmanagerreceived bookings
+MethodRouteProtectionNotesPOST/hostsJWTcreator becomes first managerGET/hosts/mineJWThost profiles managed by the current userPATCH/hosts/:idmanagerPOST/experiencesmanagerhost must be managed by the userPATCH/experiences/:idmanagerDELETE/experiences/:idmanageronly if status=draft, otherwise → cancelledGET/hosts/:id/bookingsmanagerreceived bookings
 
 Booking (middleware: JWT)
 
@@ -74,7 +74,7 @@ Errors: JSON { error: string } with proper status codes (400/401/403/404/409)
 
 4. Client — pages (React Router 7)
 
-RouteProtectedContent/—Landing + featured experiences/experiences—List with city/tag/date filters (synced with query params)/experiences/:id—Detail + book CTA (if not logged in → redirect to login)/hosts/:id—Nonna's public page: bio, story, reviews, badge/login, /register—/dashboard✅Tabbed double view: "My bookings" (guest) / "My profiles" (manager)/hosts/new✅"Bring your nonna online" wizard
+RouteProtectedContent/—Landing + featured experiences/experiences—List with city/tag/date filters (synced with query params)/experiences/:id—Detail + book CTA (if not logged in → redirect to login)/hosts/:id—Nonna's public page: bio, story, reviews, badge/login, /register—/dashboard✅Tabbed double view: "My bookings" (guest) / "My profiles" (manager)/hosts/new✅"Bring your nonna online" wizard/hosts/:id/experiences/new✅Add an experience to one of my host profiles (reached from the dashboard's "My profiles" tab)
 
 State & patterns
 

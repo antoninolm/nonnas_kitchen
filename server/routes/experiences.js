@@ -155,10 +155,14 @@ router.delete("/:id", requireAuth, async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const { city, tag, from, q } = req.query;
+  const { city, tag, from, q, host } = req.query;
   const filter = { status: "published" };
 
   try {
+    if (host) {
+      filter.host = host;
+    }
+
     if (city) {
       const hosts = await HostProfile.find(
         { city: { $regex: `^${escapeRegExp(city)}$`, $options: "i" } },
