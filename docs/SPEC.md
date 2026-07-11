@@ -12,7 +12,7 @@ Any deviation must be agreed upon first and recorded here.
 User: anyone who registers. Can act as a guest (books experiences) and/or a manager (manages one or more HostProfiles). There is no global role field: the role is contextual.
 HostProfile: the public profile of the grandmother/grandfather. Not a User — has no login. Managed by one or more Users through the managers array.
 Experience: a culinary event published by a HostProfile (date, seats, price).
-Booking: a guest's reservation for an Experience. The experience address is visible only once the booking is confirmed.
+Booking: a guest's reservation for an Experience. The experience address is visible only once the booking is confirmed and paid.
 Review: post-experience review, one per booking.
 
 
@@ -58,7 +58,7 @@ MethodRouteProtectionNotesPOST/hostsJWTcreator becomes first managerGET/hosts/mi
 
 Booking (middleware: JWT)
 
-MethodRouteProtectionNotesPOST/bookingsJWTchecks seatsBooked + seats <= seatsTotal; creates with status=pendingGET/bookings/meJWTthe user's bookings as guestPATCH/bookings/:idJWTconfirm → host manager only; cancel → owning guest onlyGET/bookings/:id/addressJWTreturns address only if requester = booking guest and status=confirmedPOST/bookings/:id/reviewJWTbooking guest only, only if status=completed
+MethodRouteProtectionNotesPOST/bookingsJWTchecks seatsBooked + seats <= seatsTotal; creates with status=pendingGET/bookings/meJWTthe user's bookings as guestPATCH/bookings/:idJWTconfirm → host manager only; cancel → owning guest onlyGET/bookings/:id/addressJWTreturns address only if requester = booking guest and status=confirmed and paid=truePOST/bookings/:id/reviewJWTbooking guest only, only if status=completed
 
 Payments
 

@@ -119,6 +119,34 @@ router.patch("/:id", requireAuth, async (req, res) => {
   }
 });
 
+router.get("/:id/address", requireAuth, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    if (!booking.guest.equals(req.user.id)) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    if (booking.status !== "confirmed" || !booking.paid) {
+      return res
+        .status(409)
+        .json({ error: "Booking is not confirmed and paid" });
+    }
+
+    const experience = await Experience.findById(booking.experience).select(
+      "+address",
+    );
+
+    res.json({ address: experience.address });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/me", requireAuth, async (req, res) => {
   try {
     const bookings = await Booking.find({ guest: req.user.id }).populate({
