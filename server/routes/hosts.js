@@ -1,5 +1,7 @@
 import { Router } from "express";
 import HostProfile from "../models/HostProfile.js";
+import Experience from "../models/Experience.js";
+import Booking from "../models/Booking.js";
 import requireAuth from "../middleware/auth.js";
 import { requireHostManager } from "../middleware/requireManager.js";
 
@@ -67,5 +69,24 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+router.get(
+  "/:id/bookings",
+  requireAuth,
+  requireHostManager,
+  async (req, res) => {
+    try {
+      const experiences = await Experience.find({ host: req.params.id }, "_id");
+      const bookings = await Booking.find({
+        experience: { $in: experiences.map((e) => e._id) },
+      })
+        .populate({ path: "guest", select: "name" })
+        .populate({ path: "experience", select: "title date" });
+      res.json(bookings);
+    } catch (err) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+);
 
 export default router;

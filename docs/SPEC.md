@@ -66,6 +66,8 @@ MethodRouteProtectionNotesPOST/api/create-checkout-sessionJWTVercel serverless f
 
 Note: Experience has no city field of its own — city lives on HostProfile. The city filter on GET /experiences resolves in two steps: first find matching HostProfile ids by city, then query Experience with host: { $in: ids }. Decided in Task 5.
 
+Note: PATCH /bookings/:id transitions — pending → confirmed (host manager only); pending → cancelled (guest withdrawing, or host manager declining); confirmed → cancelled (guest only — a manager cannot cancel an already-confirmed booking in the MVP). Any other status change is rejected (400 invalid transition); a valid transition attempted by the wrong actor is rejected (403). Cancelling releases the booked seats (experience.seatsBooked -= booking.seats). Decided in Task 12.
+
 Cross-cutting rules
 
 

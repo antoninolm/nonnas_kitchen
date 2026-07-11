@@ -63,6 +63,62 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
+const TRANSITIONS = {
+  "pending->confirmed": { managerOnly: true },
+  "pending->cancelled": { guestOrManager: true },
+  "confirmed->cancelled": { guestOnly: true },
+};
+
+router.patch("/:id", requireAuth, async (req, res) => {
+  const { status } = req.body;
+  if (!["confirmed", "cancelled"].includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
+
+  try {
+    const booking = await Booking.findById(req.params.id).populate({
+      path: "experience",
+      select: "host",
+    });
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    const rule = TRANSITIONS[`${booking.status}->${status}`];
+    if (!rule) {
+      return res.status(400).json({ error: "Invalid transition" });
+    }
+
+    const isGuest = booking.guest.equals(req.user.id);
+    const { isManager } = await findManagedHost(
+      booking.experience.host,
+      req.user.id,
+    );
+
+    const authorized =
+      (rule.managerOnly && isManager) ||
+      (rule.guestOnly && isGuest) ||
+      (rule.guestOrManager && (isGuest || isManager));
+
+    if (!authorized) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    if (status === "cancelled") {
+      await Experience.findByIdAndUpdate(booking.experience._id, {
+        $inc: { seatsBooked: -booking.seats },
+      });
+    }
+
+    booking.status = status;
+    await booking.save();
+    res.json(booking);
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/me", requireAuth, async (req, res) => {
   try {
     const bookings = await Booking.find({ guest: req.user.id }).populate({
