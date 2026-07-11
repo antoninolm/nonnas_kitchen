@@ -34,7 +34,7 @@ FieldTypeConstraintshostObjectId → HostProfilerequiredtitleStringrequiredrecip
 
 Booking
 
-FieldTypeConstraintsexperienceObjectId → ExperiencerequiredguestObjectId → UserrequiredseatsNumberdefault 1, min 1messageStringrequired, max 500 (trust & safety)statusString enumpending / confirmed / cancelled / completed — default pendingstripeSessionIdStringoptional
+FieldTypeConstraintsexperienceObjectId → ExperiencerequiredguestObjectId → UserrequiredseatsNumberdefault 1, min 1messageStringrequired, max 500 (trust & safety)statusString enumpending / confirmed / cancelled / completed — default pendingpaidBooleandefault false (independent of status: acceptance and payment are separate facts)stripeSessionIdStringoptional
 
 Unique compound index on { experience, guest } → prevents double bookings.
 
