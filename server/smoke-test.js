@@ -7,10 +7,16 @@ import Booking from "./models/Booking.js";
 const BASE_URL = "http://localhost:8080";
 let passed = 0;
 let failed = 0;
+let skipped = 0;
 
 function check(name, ok, detail) {
   console.log(`${ok ? "PASS" : "FAIL"} - ${name}${detail ? ` (${detail})` : ""}`);
   ok ? passed++ : failed++;
+}
+
+function skip(name, detail) {
+  console.log(`SKIP - ${name}${detail ? ` (${detail})` : ""}`);
+  skipped++;
 }
 
 async function request(method, path, { token, body } = {}) {
@@ -174,8 +180,11 @@ async function main() {
   );
 
   // 11. Flip paid to true directly via Mongoose.
-  // Justified: Stripe checkout doesn't exist yet — task 14b will replace this
-  // manual flip with the real payment-verification flow where possible.
+  // Justified: the real Stripe Checkout page can't be driven headlessly, so
+  // this remains the only way to reach the paid state without a browser.
+  // Checks 16-21 below cover the guards around checkout-session and verify
+  // that make this manual flip safe (payment only possible once confirmed,
+  // verify never trusts an unverified or mismatched session).
   await Booking.findByIdAndUpdate(bookingBId, { paid: true });
 
   // 12. GET address as guest -> 200 with a non-empty address string
@@ -224,8 +233,88 @@ async function main() {
     `experience response leaks address: ${experienceAfter.text.includes(revealedAddress)}, bookings/me leaks address: ${myBookingsAfter.text.includes(revealedAddress)}`,
   );
 
+  // 16. checkout-session on a still-pending booking -> 409 (no payment before acceptance)
+  const checkoutPending = await request("POST", "/api/v1/payments/checkout-session", {
+    token: guestToken,
+    body: { bookingId: bookingC.json._id },
+  });
+  check(
+    "checkout-session rejected on pending booking",
+    checkoutPending.status === 409,
+    `status ${checkoutPending.status} (expected 409)`,
+  );
+
+  // Fresh confirmed-unpaid booking for checks 17-20, distinct from the
+  // bookings above to avoid the unique (experience, guest) index.
+  const experienceD = otherExperiences[2];
+  const bookingD = await request("POST", "/api/v1/bookings", {
+    token: guestToken,
+    body: { experience: experienceD._id, seats: 1, message: "Smoke test booking D" },
+  });
+  const bookingDId = bookingD.json._id;
+  await request("PATCH", `/api/v1/bookings/${bookingDId}`, {
+    token: managerToken,
+    body: { status: "confirmed" },
+  });
+
+  // 17. checkout-session as the manager (not the guest) -> 403
+  const checkoutAsManager = await request("POST", "/api/v1/payments/checkout-session", {
+    token: managerToken,
+    body: { bookingId: bookingDId },
+  });
+  check(
+    "checkout-session rejected for non-guest",
+    checkoutAsManager.status === 403,
+    `status ${checkoutAsManager.status} (expected 403)`,
+  );
+
+  const hasStripeKey = Boolean(process.env.STRIPE_SECRET_KEY);
+  if (!hasStripeKey) {
+    const reason = "STRIPE_SECRET_KEY not set in .env — cannot create or inspect real Stripe sessions";
+    skip("checkout-session returns a Stripe checkout URL", reason);
+    skip("verify rejects a mismatched sessionId", reason);
+    skip("verify rejects an unpaid session (redirect is not proof of payment)", reason);
+  } else {
+    // 18. checkout-session on the confirmed unpaid booking -> 200 with a Stripe URL
+    const checkoutOk = await request("POST", "/api/v1/payments/checkout-session", {
+      token: guestToken,
+      body: { bookingId: bookingDId },
+    });
+    check(
+      "checkout-session returns a Stripe checkout URL",
+      checkoutOk.status === 200 && checkoutOk.json?.url?.startsWith("https://checkout.stripe.com"),
+      `status ${checkoutOk.status} (expected 200), url "${checkoutOk.json?.url}"`,
+    );
+
+    // 19. verify with a mismatched sessionId -> 400
+    const verifyMismatch = await request("POST", "/api/v1/payments/verify", {
+      token: guestToken,
+      body: { bookingId: bookingDId, sessionId: "cs_test_does_not_match" },
+    });
+    check(
+      "verify rejects a mismatched sessionId",
+      verifyMismatch.status === 400,
+      `status ${verifyMismatch.status} (expected 400)`,
+    );
+
+    // 20. verify with the real sessionId, but that session was never paid -> 409.
+    // This is the concrete proof that the Checkout redirect alone means nothing:
+    // the session from check 18 exists and matches, yet payment never happened.
+    const bookingsAfterCheckout = await request("GET", "/api/v1/bookings/me", { token: guestToken });
+    const realSessionId = bookingsAfterCheckout.json.find((b) => b._id === bookingDId)?.stripeSessionId;
+    const verifyUnpaid = await request("POST", "/api/v1/payments/verify", {
+      token: guestToken,
+      body: { bookingId: bookingDId, sessionId: realSessionId },
+    });
+    check(
+      "verify rejects an unpaid session (redirect is not proof of payment)",
+      verifyUnpaid.status === 409,
+      `status ${verifyUnpaid.status} (expected 409)`,
+    );
+  }
+
   await mongoose.disconnect();
-  console.log(`\n${passed}/${passed + failed} passed`);
+  console.log(`\n${passed}/${passed + failed} passed${skipped ? `, ${skipped} skipped` : ""}`);
   process.exit(failed === 0 ? 0 : 1);
 }
 
