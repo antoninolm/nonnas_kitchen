@@ -1,17 +1,34 @@
 import { useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import { useAuth } from "../hooks/useAuth";
 import { formatDate, formatPrice } from "../utils/format";
 
+function errorKey(err) {
+  if (err.status === 400) return "experiences.detail.errors.missingMessage";
+  if (err.status === 403) return "experiences.detail.errors.ownHost";
+  if (err.status === 409) {
+    return err.message?.includes("already have a booking")
+      ? "experiences.detail.errors.duplicate"
+      : "experiences.detail.errors.soldOut";
+  }
+  return "forms.errors.generic";
+}
+
 function ExperienceDetail() {
   const { id } = useParams();
   const { lang, t } = useTranslation();
-  const { user } = useAuth();
+  const { user, authFetchJSON } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showComingSoon, setShowComingSoon] = useState(false);
+
+  const [showForm, setShowForm] = useState(false);
+  const [seats, setSeats] = useState(1);
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [requestError, setRequestError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const {
     data: experience,
@@ -24,7 +41,25 @@ function ExperienceDetail() {
       navigate("/login", { state: { from: location } });
       return;
     }
-    setShowComingSoon(true);
+    setShowForm(true);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setRequestError(null);
+    setSubmitting(true);
+
+    try {
+      await authFetchJSON("/api/v1/bookings", {
+        method: "POST",
+        body: JSON.stringify({ experience: experience._id, seats, message }),
+      });
+      setSuccess(true);
+    } catch (err) {
+      setRequestError(t(errorKey(err)));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (loading) return <p className="p-4">{t("common.loading")}</p>;
@@ -71,11 +106,57 @@ function ExperienceDetail() {
 
       {experience.story && <p className="mt-4">{experience.story}</p>}
 
-      <button type="button" className="mt-6" onClick={handleBook}>
-        {t("experiences.detail.book")}
-      </button>
-      {showComingSoon && (
-        <p className="mt-2">{t("experiences.detail.bookComingSoon")}</p>
+      {success ? (
+        <div className="mt-6">
+          <p>{t("experiences.detail.request.success")}</p>
+          <Link to="/dashboard">
+            {t("experiences.detail.request.dashboardLink")}
+          </Link>
+        </div>
+      ) : (
+        seatsLeft > 0 && (
+          <>
+            <button type="button" className="mt-6" onClick={handleBook}>
+              {t("experiences.detail.book")}
+            </button>
+            {showForm && (
+              <form
+                onSubmit={handleSubmit}
+                className="mt-4 flex flex-col gap-3"
+              >
+                <label className="flex flex-col gap-1">
+                  {t("experiences.detail.request.seats")}
+                  <select
+                    value={seats}
+                    onChange={(e) => setSeats(Number(e.target.value))}
+                  >
+                    {Array.from({ length: seatsLeft }, (_, i) => i + 1).map(
+                      (n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1">
+                  {t("experiences.detail.request.message")}
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                    maxLength={500}
+                  />
+                </label>
+                <p>{t("experiences.detail.request.messageHelp")}</p>
+                {requestError && <p role="alert">{requestError}</p>}
+                <button type="submit" disabled={submitting}>
+                  {t("experiences.detail.request.submit")}
+                </button>
+              </form>
+            )}
+          </>
+        )
       )}
     </section>
   );
