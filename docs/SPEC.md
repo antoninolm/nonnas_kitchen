@@ -60,9 +60,13 @@ Booking (middleware: JWT)
 
 MethodRouteProtectionNotesPOST/bookingsJWTchecks seatsBooked + seats <= seatsTotal; creates with status=pendingGET/bookings/meJWTthe user's bookings as guestPATCH/bookings/:idJWTconfirm → host manager only; cancel → owning guest onlyGET/bookings/:id/addressJWTreturns address only if requester = booking guest and status=confirmed and paid=truePOST/bookings/:id/reviewJWTbooking guest only, only if status=completed
 
-Payments
+Payments (middleware: JWT)
 
-MethodRouteProtectionNotesPOST/api/create-checkout-sessionJWTVercel serverless function, Stripe Checkout
+MethodRouteProtectionNotesPOST/api/v1/payments/checkout-sessionJWTbooking must belong to requester as guest (403), status=confirmed and paid=false (409 otherwise); amount = experience.price * booking.seats computed server-side from the DB — the client only sends a bookingId, never an amount; creates a Stripe Checkout Session (mode=payment, currency=eur), stores session.id on booking.stripeSessionId, returns { url }POST/api/v1/payments/verifyJWTbooking must belong to requester as guest (403); sessionId must match booking.stripeSessionId (400 otherwise); retrieves the session from Stripe and sets paid=true only if payment_status === "paid" (409 otherwise) — the success redirect alone is never treated as proof of payment
+
+Note: Stripe on Express, not a Vercel serverless function as originally planned in Phase 1 — the checkout amount must be read from the database at request time (experience.price * booking.seats), and only the Express server has DB access. Trusting a client-supplied amount would let any guest set their own price. Decided in Task 14.
+
+Note: No Stripe webhooks in the MVP — /payments/verify polls Stripe synchronously (sessions.retrieve()) when the client returns from the hosted Checkout page after a manual "I've paid, verify" action. This is sufficient for a manually-tested demo but not production-grade: a guest who closes the tab before returning is never verified, and nothing re-checks payment status later. Webhooks (a signature-validated POST /api/v1/payments/webhook, stripe listen for local dev) are the production-grade approach, deferred to v2. Decided in Task 14. TEST MODE ONLY — never a live secret key in this repo.
 
 Note: Experience has no city field of its own — city lives on HostProfile. The city filter on GET /experiences resolves in two steps: first find matching HostProfile ids by city, then query Experience with host: { $in: ids }. Decided in Task 5.
 
@@ -114,6 +118,6 @@ server/seed.js: 4–5 credible HostProfiles (Rome and Naples), 8–10 published 
 8. Deploy
 
 
-Express server → Render (env vars: MONGODB_URI, JWT_SECRET, STRIPE_SECRET_KEY)
-Client + Stripe serverless → Vercel
+Express server → Render (env vars: MONGODB_URI, JWT_SECRET, STRIPE_SECRET_KEY, CLIENT_URL)
+Client → Vercel
 .env in .gitignore, .env.example committed

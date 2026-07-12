@@ -6,6 +6,7 @@ import authRouter from "./routes/auth.js";
 import hostsRouter from "./routes/hosts.js";
 import experiencesRouter from "./routes/experiences.js";
 import bookingsRouter from "./routes/bookings.js";
+import paymentsRouter from "./routes/payments.js";
 
 const PORT = process.env.PORT || 8080;
 
@@ -28,6 +29,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/hosts", hostsRouter);
 app.use("/api/v1/experiences", experiencesRouter);
 app.use("/api/v1/bookings", bookingsRouter);
+app.use("/api/v1/payments", paymentsRouter);
 
 connectDB(process.env.MONGODB_URI)
   .then(() => {

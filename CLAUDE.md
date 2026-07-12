@@ -22,9 +22,9 @@ Locked tech stack (do not deviate)
 Server: Node.js, Express 5, pure ESM (import/export, never require), Mongoose 9
 Client: React 19 + Vite, React Router DOM 7, Tailwind CSS 4
 Auth: JWT (jsonwebtoken, 1h expiry) + bcrypt (10 salt rounds) + helmet + dotenv
-Payments: Stripe via Vercel serverless function (/api/create-checkout-session.js)
+Payments: Stripe via the Express server (POST /api/v1/payments/checkout-session, POST /api/v1/payments/verify) — the checkout amount is computed server-side from the DB (only Express has DB access); supersedes the earlier Vercel-serverless-function plan (Task 14)
 DB: MongoDB Atlas
-Deploy: Vercel (client + serverless), Render (Express server)
+Deploy: Vercel (client), Render (Express server)
 i18n: custom implementation via React Context + JSON dictionaries (no external i18n library)
 
 
