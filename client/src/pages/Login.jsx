@@ -25,7 +25,8 @@ function Login() {
 
     try {
       await login(email, password);
-      navigate(location.state?.from?.pathname ?? "/");
+      const from = location.state?.from;
+      navigate(from ? `${from.pathname}${from.search ?? ""}` : "/");
     } catch (err) {
       setError(t(errorKey(err.status)));
     }

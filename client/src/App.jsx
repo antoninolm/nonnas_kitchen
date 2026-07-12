@@ -10,6 +10,7 @@ import HostProfile from "./pages/HostProfile.jsx";
 import HostNew from "./pages/HostNew.jsx";
 import HostExperienceNew from "./pages/HostExperienceNew.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import BookingsSuccess from "./pages/BookingsSuccess.jsx";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route path="/bookings/success" element={<BookingsSuccess />} />
       </Routes>
     </>
   );

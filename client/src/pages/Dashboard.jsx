@@ -1,39 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
+import BookingCard from "../components/BookingCard.jsx";
+import HostBookingRequests from "../components/HostBookingRequests.jsx";
 
 function Dashboard() {
-  const { authFetch } = useAuth();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("bookings");
-  const [profiles, setProfiles] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let active = true;
+  const {
+    data: bookings,
+    loading: bookingsLoading,
+    error: bookingsError,
+    refetch: refetchBookings,
+  } = useAuthFetch("/api/v1/bookings/me");
 
-    authFetch("/api/v1/hosts/mine")
-      .then((res) => {
-        if (!res.ok)
-          throw new Error(`Request failed with status ${res.status}`);
-        return res.json();
-      })
-      .then((json) => {
-        if (active) setProfiles(json);
-      })
-      .catch(() => {
-        if (active) setError(true);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [authFetch]);
+  const {
+    data: profiles,
+    loading: profilesLoading,
+    error: profilesError,
+  } = useAuthFetch("/api/v1/hosts/mine");
 
   return (
     <section className="mx-auto max-w-2xl p-4">
@@ -48,28 +35,49 @@ function Dashboard() {
         </button>
       </div>
 
-      {activeTab === "bookings" && <p>{t("dashboard.bookings.empty")}</p>}
+      {activeTab === "bookings" && (
+        <div className="flex flex-col gap-3">
+          {bookingsLoading && <p>{t("common.loading")}</p>}
+          {bookingsError && (
+            <p role="alert">{t("common.error")}</p>
+          )}
+          {!bookingsLoading && !bookingsError && bookings?.length === 0 && (
+            <p>{t("dashboard.bookings.empty")}</p>
+          )}
+          {!bookingsLoading && !bookingsError && bookings?.length > 0 && (
+            <ul className="flex flex-col gap-3">
+              {bookings.map((booking) => (
+                <BookingCard
+                  key={booking._id}
+                  booking={booking}
+                  onChange={refetchBookings}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {activeTab === "profiles" && (
         <div className="flex flex-col gap-3">
-          {loading && <p>{t("common.loading")}</p>}
-          {error && <p role="alert">{t("common.error")}</p>}
-          {!loading && !error && profiles?.length === 0 && (
+          {profilesLoading && <p>{t("common.loading")}</p>}
+          {profilesError && <p role="alert">{t("common.error")}</p>}
+          {!profilesLoading && !profilesError && profiles?.length === 0 && (
             <p>{t("dashboard.profiles.empty")}</p>
           )}
-          {!loading && !error && profiles?.length > 0 && (
+          {!profilesLoading && !profilesError && profiles?.length > 0 && (
             <ul className="flex flex-col gap-3">
               {profiles.map((host) => (
-                <li
-                  key={host._id}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <Link to={`/hosts/${host._id}`}>
-                    {host.displayName} — {host.city}
-                  </Link>
-                  <Link to={`/hosts/${host._id}/experiences/new`}>
-                    {t("dashboard.profiles.addExperience")}
-                  </Link>
+                <li key={host._id} className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <Link to={`/hosts/${host._id}`}>
+                      {host.displayName} — {host.city}
+                    </Link>
+                    <Link to={`/hosts/${host._id}/experiences/new`}>
+                      {t("dashboard.profiles.addExperience")}
+                    </Link>
+                  </div>
+                  <HostBookingRequests hostId={host._id} />
                 </li>
               ))}
             </ul>
