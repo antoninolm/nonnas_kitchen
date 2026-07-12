@@ -1,5 +1,8 @@
 import "dotenv/config";
 import { execSync } from "node:child_process";
+import mongoose from "mongoose";
+import connectDB from "./db.js";
+import Booking from "./models/Booking.js";
 
 const BASE_URL = "http://localhost:8080";
 let passed = 0;
@@ -33,6 +36,8 @@ async function main() {
     console.error(`Cannot reach ${BASE_URL}/api/v1/health — start the dev server first (npm run dev).`);
     process.exit(1);
   }
+
+  await connectDB(process.env.MONGODB_URI);
 
   // Spawn `npm run seed` as a subprocess instead of importing seed.js:
   // seed.js calls process.exit() at the end of its own top-level run, which
@@ -135,6 +140,91 @@ async function main() {
     `status ${myBookings.status} (expected 200)`,
   );
 
+  // Additional manager-owned experiences for checks 10-15, distinct from
+  // `experience` (already used by checks 2-8) to avoid the unique
+  // (experience, guest) index rejecting a fresh booking with 409.
+  const managerExperiences = [];
+  for (const host of hosts.json) {
+    const res = await request("GET", `/api/v1/experiences?host=${host._id}`);
+    managerExperiences.push(...res.json);
+  }
+  const otherExperiences = managerExperiences.filter(
+    (e) => e.status === "published" && e.seatsBooked < e.seatsTotal && e._id !== experience._id,
+  );
+  const experienceB = otherExperiences[0];
+  const experienceC = otherExperiences[1];
+
+  // 10. Fresh booking, manager confirms -> address is 409 (confirmed but unpaid)
+  const bookingB = await request("POST", "/api/v1/bookings", {
+    token: guestToken,
+    body: { experience: experienceB._id, seats: 1, message: "Smoke test booking B" },
+  });
+  const bookingBId = bookingB.json._id;
+  await request("PATCH", `/api/v1/bookings/${bookingBId}`, {
+    token: managerToken,
+    body: { status: "confirmed" },
+  });
+  const addressUnpaid = await request("GET", `/api/v1/bookings/${bookingBId}/address`, {
+    token: guestToken,
+  });
+  check(
+    "address hidden when confirmed but unpaid",
+    addressUnpaid.status === 409,
+    `status ${addressUnpaid.status} (expected 409)`,
+  );
+
+  // 11. Flip paid to true directly via Mongoose.
+  // Justified: Stripe checkout doesn't exist yet — task 14b will replace this
+  // manual flip with the real payment-verification flow where possible.
+  await Booking.findByIdAndUpdate(bookingBId, { paid: true });
+
+  // 12. GET address as guest -> 200 with a non-empty address string
+  const addressPaid = await request("GET", `/api/v1/bookings/${bookingBId}/address`, {
+    token: guestToken,
+  });
+  check(
+    "address visible once confirmed and paid",
+    addressPaid.status === 200 &&
+      typeof addressPaid.json?.address === "string" &&
+      addressPaid.json.address.length > 0,
+    `status ${addressPaid.status} (expected 200), address "${addressPaid.json?.address}"`,
+  );
+  const revealedAddress = addressPaid.json?.address;
+
+  // 13. GET address as the manager (not the guest) -> 403
+  const addressAsManager = await request("GET", `/api/v1/bookings/${bookingBId}/address`, {
+    token: managerToken,
+  });
+  check(
+    "manager cannot view guest's address",
+    addressAsManager.status === 403,
+    `status ${addressAsManager.status} (expected 403)`,
+  );
+
+  // 14. GET address on a still-pending booking -> 409
+  const bookingC = await request("POST", "/api/v1/bookings", {
+    token: guestToken,
+    body: { experience: experienceC._id, seats: 1, message: "Smoke test booking C" },
+  });
+  const addressPending = await request("GET", `/api/v1/bookings/${bookingC.json._id}/address`, {
+    token: guestToken,
+  });
+  check(
+    "address hidden on pending booking",
+    addressPending.status === 409,
+    `status ${addressPending.status} (expected 409)`,
+  );
+
+  // 15. The revealed address must not leak into /experiences/:id or /bookings/me
+  const experienceAfter = await request("GET", `/api/v1/experiences/${experienceB._id}`);
+  const myBookingsAfter = await request("GET", "/api/v1/bookings/me", { token: guestToken });
+  check(
+    "revealed address does not leak into /experiences/:id or /bookings/me",
+    !experienceAfter.text.includes(revealedAddress) && !myBookingsAfter.text.includes(revealedAddress),
+    `experience response leaks address: ${experienceAfter.text.includes(revealedAddress)}, bookings/me leaks address: ${myBookingsAfter.text.includes(revealedAddress)}`,
+  );
+
+  await mongoose.disconnect();
   console.log(`\n${passed}/${passed + failed} passed`);
   process.exit(failed === 0 ? 0 : 1);
 }
