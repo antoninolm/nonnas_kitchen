@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../utils/api";
 
 export function useFetch(url) {
   const [data, setData] = useState(null);
@@ -11,7 +12,7 @@ export function useFetch(url) {
     setLoading(true);
     setError(null);
 
-    fetch(url, { signal: controller.signal })
+    fetch(apiUrl(url), { signal: controller.signal })
       .then((res) => {
         if (!res.ok)
           throw new Error(`Request failed with status ${res.status}`);

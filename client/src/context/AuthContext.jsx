@@ -1,9 +1,10 @@
 import { createContext, useCallback, useState } from "react";
+import { apiUrl } from "../utils/api";
 
 export const AuthContext = createContext(null);
 
 async function postJSON(url, body) {
-  const res = await fetch(url, {
+  const res = await fetch(apiUrl(url), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -38,7 +39,7 @@ export function AuthProvider({ children }) {
 
   const authFetch = useCallback(
     (url, options = {}) =>
-      fetch(url, {
+      fetch(apiUrl(url), {
         ...options,
         headers: { ...options.headers, Authorization: `Bearer ${token}` },
       }),
