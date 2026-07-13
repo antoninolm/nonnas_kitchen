@@ -4,7 +4,11 @@ import mongoose from "mongoose";
 import connectDB from "./db.js";
 import Booking from "./models/Booking.js";
 
-const BASE_URL = "http://localhost:8080";
+// SMOKE_URL lets this suite target a deployed API (e.g. Render) instead of
+// localhost. It re-seeds and mutates whatever database MONGODB_URI points
+// to, so only run it against the demo/prod DB used for this course
+// project — never against a real production database with real user data.
+const BASE_URL = process.env.SMOKE_URL || "http://localhost:8080";
 let passed = 0;
 let failed = 0;
 let skipped = 0;
@@ -39,7 +43,10 @@ async function main() {
   try {
     await fetch(`${BASE_URL}/api/v1/health`);
   } catch {
-    console.error(`Cannot reach ${BASE_URL}/api/v1/health — start the dev server first (npm run dev).`);
+    const hint = process.env.SMOKE_URL
+      ? "check the deployment is awake (Render free tier sleeps after inactivity) and its logs."
+      : "start the dev server first (npm run dev).";
+    console.error(`Cannot reach ${BASE_URL}/api/v1/health — ${hint}`);
     process.exit(1);
   }
 
