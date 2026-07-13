@@ -121,3 +121,5 @@ server/seed.js: 4–5 credible HostProfiles (Rome and Naples), 8–10 published 
 Express server → Render (env vars: MONGODB_URI, JWT_SECRET, STRIPE_SECRET_KEY, CLIENT_URL)
 Client → Vercel
 .env in .gitignore, .env.example committed
+
+Note: Render and Vercel are different origins — the Express server enables CORS restricted to CLIENT_URL (the deployed Vercel domain). Decided in Task 18.

@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import cors from "cors";
 import helmet from "helmet";
 import connectDB from "./db.js";
 import authRouter from "./routes/auth.js";
@@ -10,14 +11,23 @@ import paymentsRouter from "./routes/payments.js";
 
 const PORT = process.env.PORT || 8080;
 
-if (!process.env.MONGODB_URI) {
+const REQUIRED_ENV_VARS = [
+  "MONGODB_URI",
+  "JWT_SECRET",
+  "STRIPE_SECRET_KEY",
+  "CLIENT_URL",
+];
+const missingEnvVars = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
+
+if (missingEnvVars.length > 0) {
   console.error(
-    "Missing MONGODB_URI environment variable. Did you copy server/.env.example to server/.env?",
+    `Missing required environment variable(s): ${missingEnvVars.join(", ")}. Did you copy server/.env.example to server/.env?`,
   );
   process.exit(1);
 }
 
 const app = express();
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use(helmet());
 app.use(express.json());
 
