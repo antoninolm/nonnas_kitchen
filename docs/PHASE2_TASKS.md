@@ -105,6 +105,10 @@ same guard pattern as seed.js.
 
 Acceptance criteria: npm run smoke → all checks pass (old 9 + new 6), exit 0;
 with the server down it still fails fast before touching the DB.
+
+Note: the suite has 20 numbered steps but 19 assertions — step #11 is a
+data-setup step (manual paid flip), not a check. A full run reports 19/19
+passed (or 16 passed + 3 SKIP without a Stripe key).
 ```
 
 ---
@@ -182,6 +186,10 @@ covers everything AROUND it, which is where regressions actually happen:
 
 Acceptance criteria: npm run smoke → all checks pass (or SKIP for 18-20
 without a key), exit 0; the suite leaves the DB re-seeded/clean at the end.
+
+Note: the suite has 20 numbered steps but 19 assertions — step #11 is a
+data-setup step (manual paid flip), not a check. A full run reports 19/19
+passed (or 16 passed + 3 SKIP without a Stripe key).
 ```
 
 ---
