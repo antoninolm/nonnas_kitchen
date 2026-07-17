@@ -9,6 +9,7 @@ import ExperienceDetail from "./pages/ExperienceDetail.jsx";
 import HostProfile from "./pages/HostProfile.jsx";
 import HostNew from "./pages/HostNew.jsx";
 import HostExperienceNew from "./pages/HostExperienceNew.jsx";
+import HostExperienceEdit from "./pages/HostExperienceEdit.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import BookingsSuccess from "./pages/BookingsSuccess.jsx";
 
@@ -36,6 +37,14 @@ function App() {
           element={
             <RequireAuth>
               <HostExperienceNew />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/hosts/:id/experiences/:experienceId/edit"
+          element={
+            <RequireAuth>
+              <HostExperienceEdit />
             </RequireAuth>
           }
         />

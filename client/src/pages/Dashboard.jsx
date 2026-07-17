@@ -4,6 +4,7 @@ import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import BookingCard from "../components/BookingCard.jsx";
 import HostBookingRequests from "../components/HostBookingRequests.jsx";
+import HostExperienceList from "../components/HostExperienceList.jsx";
 
 function Dashboard() {
   const { t } = useTranslation();
@@ -77,6 +78,7 @@ function Dashboard() {
                       {t("dashboard.profiles.addExperience")}
                     </Link>
                   </div>
+                  <HostExperienceList hostId={host._id} />
                   <HostBookingRequests hostId={host._id} />
                 </li>
               ))}

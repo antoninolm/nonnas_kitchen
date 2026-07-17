@@ -89,4 +89,20 @@ router.get(
   },
 );
 
+router.get(
+  "/:id/experiences",
+  requireAuth,
+  requireHostManager,
+  async (req, res) => {
+    try {
+      const experiences = await Experience.find({ host: req.params.id })
+        .select("+address")
+        .sort({ date: 1 });
+      res.json(experiences);
+    } catch (err) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+);
+
 export default router;

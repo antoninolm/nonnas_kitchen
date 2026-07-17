@@ -54,7 +54,7 @@ MethodRouteProtectionNotesGET/experiences—query params: city, tag, from (date)
 
 Host management (middleware: JWT + user ∈ managers)
 
-MethodRouteProtectionNotesPOST/hostsJWTcreator becomes first managerGET/hosts/mineJWThost profiles managed by the current userPATCH/hosts/:idmanagerPOST/experiencesmanagerhost must be managed by the userPATCH/experiences/:idmanagerDELETE/experiences/:idmanageronly if status=draft, otherwise → cancelledGET/hosts/:id/bookingsmanagerreceived bookings
+MethodRouteProtectionNotesPOST/hostsJWTcreator becomes first managerGET/hosts/mineJWThost profiles managed by the current userPATCH/hosts/:idmanagerPOST/experiencesmanagerhost must be managed by the userPATCH/experiences/:idmanagerDELETE/experiences/:idmanageronly if status=draft, otherwise → cancelledGET/hosts/:id/bookingsmanagerreceived bookingsGET/hosts/:id/experiencesmanagerall statuses, including drafts (every public GET filters status=published, so managers had no way to list their own drafts/cancelled experiences); includes address (the edit form needs it). Added in Task 26.
 
 Booking (middleware: JWT)
 
