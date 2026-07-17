@@ -21,7 +21,7 @@ Locked tech stack (do not deviate)
 
 Server: Node.js, Express 5, pure ESM (import/export, never require), Mongoose 9
 Client: React 19 + Vite, React Router DOM 7, Tailwind CSS 4
-Auth: JWT (jsonwebtoken, 1h expiry) + bcrypt (10 salt rounds) + helmet + dotenv
+Auth: JWT (jsonwebtoken, 1h expiry) + bcrypt (10 salt rounds) + helmet + dotenv — client persists { token, user } in sessionStorage (not localStorage), rehydrated on mount, so a same-tab Stripe redirect keeps the session; a new tab or closed tab still requires login. Revises Task 7's original in-memory-only decision (Task 27)
 CORS: cors package, origin = CLIENT_URL (dev fallback: http://localhost:5173) — Render (API) and Vercel (client) are different origins in production (Task 18)
 Payments: Stripe via the Express server (POST /api/v1/payments/checkout-session, POST /api/v1/payments/verify) — the checkout amount is computed server-side from the DB (only Express has DB access); supersedes the earlier Vercel-serverless-function plan (Task 14)
 DB: MongoDB Atlas

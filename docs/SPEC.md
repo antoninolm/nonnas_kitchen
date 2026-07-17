@@ -87,7 +87,7 @@ RouteProtectedContent/—Landing + featured experiences/experiences—List with 
 State & patterns
 
 
-AuthContext: current user + token (in-memory state, attached to fetches — no localStorage; a refresh clears the session, same as the language choice. Decided in Task 7: simplicity over persistence for the MVP)
+AuthContext: current user + token persisted in sessionStorage (not localStorage), attached to fetches. Rehydrated synchronously on mount so a same-tab redirect (e.g. returning from Stripe Checkout) keeps the session; closing the tab still clears it. The JWT itself still expires after 1h server-side regardless of what's in storage. Language choice is unaffected and stays in-memory only (LanguageContext, untouched). Revises Task 7's in-memory-only decision ("simplicity over persistence for the MVP") — decided in Task 27, after the Stripe redirect was found to force an unnecessary re-login.
 LanguageContext + useTranslation() hook: i18n (see section 5)
 Custom hook useFetch(url): loading / error / data handling
 useMemo for client-side filtering of the experience list

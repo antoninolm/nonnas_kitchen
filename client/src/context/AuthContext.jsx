@@ -3,6 +3,17 @@ import { apiUrl } from "../utils/api";
 
 export const AuthContext = createContext(null);
 
+const STORAGE_KEY = "nonnasKitchen.auth";
+
+function readStoredAuth() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function postJSON(url, body) {
   const res = await fetch(apiUrl(url), {
     method: "POST",
@@ -19,13 +30,17 @@ async function postJSON(url, body) {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(() => readStoredAuth()?.user ?? null);
+  const [token, setToken] = useState(() => readStoredAuth()?.token ?? null);
 
   async function login(email, password) {
     const data = await postJSON("/api/v1/auth/login", { email, password });
     setUser(data.user);
     setToken(data.token);
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ user: data.user, token: data.token }),
+    );
   }
 
   async function register(name, email, password) {
@@ -35,6 +50,7 @@ export function AuthProvider({ children }) {
   function logout() {
     setUser(null);
     setToken(null);
+    sessionStorage.removeItem(STORAGE_KEY);
   }
 
   const authFetch = useCallback(
