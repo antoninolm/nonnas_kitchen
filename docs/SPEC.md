@@ -22,7 +22,7 @@ User ──manages──▶ HostProfile ──offers──▶ Experience ──r
 
 User
 
-FieldTypeConstraintsnameStringrequired, trimemailStringrequired, unique, lowercasepasswordStringrequired, select: false (bcrypt hash)avatarStringoptional (URL)timestampscreatedAt, updatedAt
+FieldTypeConstraintsnameStringrequired, trimemailStringrequired, unique, lowercasepasswordStringrequired, min 8 chars, select: false (bcrypt hash)avatarStringoptional (URL)timestampscreatedAt, updatedAt
 
 HostProfile
 

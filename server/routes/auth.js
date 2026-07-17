@@ -14,6 +14,12 @@ router.post("/register", async (req, res) => {
       .json({ error: "name, email and password are required" });
   }
 
+  if (password.length < 8) {
+    return res
+      .status(400)
+      .json({ error: "password must be at least 8 characters" });
+  }
+
   try {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: passwordHash });

@@ -19,6 +19,7 @@
   "auth.errors.emailTaken": "Questa email è già registrata.",
   "auth.errors.missingFields": "Compila tutti i campi.",
   "auth.errors.generic": "Qualcosa è andato storto. Riprova.",
+  "auth.errors.passwordTooShort": "La password deve contenere almeno 8 caratteri.",
   "common.loading": "Caricamento...",
   "common.error": "Qualcosa è andato storto. Riprova.",
   "experiences.filters.city": "Città",

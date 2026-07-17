@@ -19,6 +19,7 @@
   "auth.errors.emailTaken": "This email is already registered.",
   "auth.errors.missingFields": "Please fill in all fields.",
   "auth.errors.generic": "Something went wrong. Please try again.",
+  "auth.errors.passwordTooShort": "Password must be at least 8 characters.",
   "common.loading": "Loading...",
   "common.error": "Something went wrong. Please try again.",
   "experiences.filters.city": "City",

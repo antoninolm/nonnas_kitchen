@@ -23,6 +23,11 @@ function Register() {
     e.preventDefault();
     setError(null);
 
+    if (password.length < 8) {
+      setError(t("auth.errors.passwordTooShort"));
+      return;
+    }
+
     try {
       await register(name, email, password);
       navigate("/login", { state: { email } });
