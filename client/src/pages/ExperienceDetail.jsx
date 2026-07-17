@@ -24,6 +24,7 @@ function ExperienceDetail() {
     data: experience,
     loading,
     error,
+    refetch,
   } = useFetch(`/api/v1/experiences/${id}`);
 
   function handleBook() {
@@ -45,6 +46,7 @@ function ExperienceDetail() {
         body: JSON.stringify({ experience: experience._id, seats, message }),
       });
       setSuccess(true);
+      refetch();
     } catch (err) {
       setRequestError(
         t(

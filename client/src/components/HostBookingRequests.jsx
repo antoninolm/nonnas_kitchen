@@ -4,7 +4,7 @@ import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import { formatDate } from "../utils/format";
 
-function HostBookingRequests({ hostId }) {
+function HostBookingRequests({ hostId, onChange = () => {} }) {
   const { authFetchJSON } = useAuth();
   const { lang, t } = useTranslation();
   const {
@@ -23,6 +23,7 @@ function HostBookingRequests({ hostId }) {
         body: JSON.stringify({ status }),
       });
       refetch();
+      onChange();
     } catch {
       setActionError(t("forms.errors.generic"));
     }

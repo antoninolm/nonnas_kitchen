@@ -9,6 +9,7 @@ import HostExperienceList from "../components/HostExperienceList.jsx";
 function Dashboard() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("bookings");
+  const [experiencesRefreshKey, setExperiencesRefreshKey] = useState(0);
 
   const {
     data: bookings,
@@ -39,9 +40,7 @@ function Dashboard() {
       {activeTab === "bookings" && (
         <div className="flex flex-col gap-3">
           {bookingsLoading && <p>{t("common.loading")}</p>}
-          {bookingsError && (
-            <p role="alert">{t("common.error")}</p>
-          )}
+          {bookingsError && <p role="alert">{t("common.error")}</p>}
           {!bookingsLoading && !bookingsError && bookings?.length === 0 && (
             <p>{t("dashboard.bookings.empty")}</p>
           )}
@@ -78,8 +77,14 @@ function Dashboard() {
                       {t("dashboard.profiles.addExperience")}
                     </Link>
                   </div>
-                  <HostExperienceList hostId={host._id} />
-                  <HostBookingRequests hostId={host._id} />
+                  <HostExperienceList
+                    key={`${host._id}-${experiencesRefreshKey}`}
+                    hostId={host._id}
+                  />
+                  <HostBookingRequests
+                    hostId={host._id}
+                    onChange={() => setExperiencesRefreshKey((k) => k + 1)}
+                  />
                 </li>
               ))}
             </ul>

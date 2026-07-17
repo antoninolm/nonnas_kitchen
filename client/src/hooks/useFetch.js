@@ -5,6 +5,7 @@ export function useFetch(url) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -32,7 +33,9 @@ export function useFetch(url) {
       active = false;
       controller.abort();
     };
-  }, [url]);
+  }, [url, reloadKey]);
 
-  return { data, loading, error };
+  const refetch = () => setReloadKey((k) => k + 1);
+
+  return { data, loading, error, refetch };
 }
