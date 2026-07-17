@@ -4,17 +4,7 @@ import { useFetch } from "../hooks/useFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import { useAuth } from "../hooks/useAuth";
 import { formatDate, formatPrice } from "../utils/format";
-
-function errorKey(err) {
-  if (err.status === 400) return "experiences.detail.errors.missingMessage";
-  if (err.status === 403) return "experiences.detail.errors.ownHost";
-  if (err.status === 409) {
-    return err.message?.includes("already have a booking")
-      ? "experiences.detail.errors.duplicate"
-      : "experiences.detail.errors.soldOut";
-  }
-  return "forms.errors.generic";
-}
+import { apiErrorKey } from "../utils/apiError";
 
 function ExperienceDetail() {
   const { id } = useParams();
@@ -56,7 +46,18 @@ function ExperienceDetail() {
       });
       setSuccess(true);
     } catch (err) {
-      setRequestError(t(errorKey(err)));
+      setRequestError(
+        t(
+          apiErrorKey(err, {
+            400: "experiences.detail.errors.missingMessage",
+            403: "experiences.detail.errors.ownHost",
+            409: (e) =>
+              e.message?.includes("already have a booking")
+                ? "experiences.detail.errors.duplicate"
+                : "experiences.detail.errors.soldOut",
+          }),
+        ),
+      );
     } finally {
       setSubmitting(false);
     }

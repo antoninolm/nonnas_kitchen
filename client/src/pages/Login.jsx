@@ -2,12 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
-
-function errorKey(status) {
-  if (status === 401) return "auth.errors.invalidCredentials";
-  if (status === 400) return "auth.errors.missingFields";
-  return "auth.errors.generic";
-}
+import { apiErrorKey } from "../utils/apiError";
 
 function Login() {
   const { login } = useAuth();
@@ -28,7 +23,15 @@ function Login() {
       const from = location.state?.from;
       navigate(from ? `${from.pathname}${from.search ?? ""}` : "/");
     } catch (err) {
-      setError(t(errorKey(err.status)));
+      setError(
+        t(
+          apiErrorKey(err, {
+            400: "auth.errors.missingFields",
+            401: "auth.errors.invalidCredentials",
+            defaultKey: "auth.errors.generic",
+          }),
+        ),
+      );
     }
   }
 

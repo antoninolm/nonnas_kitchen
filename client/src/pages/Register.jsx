@@ -2,12 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
-
-function errorKey(status) {
-  if (status === 409) return "auth.errors.emailTaken";
-  if (status === 400) return "auth.errors.missingFields";
-  return "auth.errors.generic";
-}
+import { apiErrorKey } from "../utils/apiError";
 
 function Register() {
   const { register } = useAuth();
@@ -32,7 +27,15 @@ function Register() {
       await register(name, email, password);
       navigate("/login", { state: { email } });
     } catch (err) {
-      setError(t(errorKey(err.status)));
+      setError(
+        t(
+          apiErrorKey(err, {
+            400: "auth.errors.missingFields",
+            409: "auth.errors.emailTaken",
+            defaultKey: "auth.errors.generic",
+          }),
+        ),
+      );
     }
   }
 

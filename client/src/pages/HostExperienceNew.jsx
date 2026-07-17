@@ -7,12 +7,7 @@ import {
   emptyExperienceValues,
   buildExperiencePayload,
 } from "../utils/experiencePayload";
-
-function errorKey(status) {
-  if (status === 400) return "forms.errors.missingFields";
-  if (status === 403) return "forms.errors.forbidden";
-  return "forms.errors.generic";
-}
+import { apiErrorKey } from "../utils/apiError";
 
 function HostExperienceNew() {
   const { id } = useParams();
@@ -44,7 +39,14 @@ function HostExperienceNew() {
       });
       navigate(`/hosts/${id}`);
     } catch (err) {
-      setError(t(errorKey(err.status)));
+      setError(
+        t(
+          apiErrorKey(err, {
+            400: "forms.errors.missingFields",
+            403: "forms.errors.forbidden",
+          }),
+        ),
+      );
       setSubmitting(false);
     }
   }
