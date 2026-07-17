@@ -87,7 +87,10 @@ function ExperienceDetail() {
 
       {experience.host && (
         <p className="mb-2">
-          {experience.host.displayName} — {experience.host.city}
+          <Link to={`/hosts/${experience.host._id}`}>
+            {experience.host.displayName}
+          </Link>{" "}
+          — {experience.host.city}
           {experience.host.verified && (
             <> · {t("experiences.detail.verified")}</>
           )}
