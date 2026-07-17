@@ -33,6 +33,14 @@ function Experiences() {
 
   const { data: experiences, loading, error } = useFetch(url);
 
+  // Tags are derived from the current page's already-fetched experiences —
+  // fine while the catalog is unpaginated; a paginated catalog would need
+  // a dedicated tags endpoint instead.
+  const tagOptions = useMemo(
+    () => [...new Set((experiences ?? []).flatMap((e) => e.tags ?? []))].sort(),
+    [experiences],
+  );
+
   return (
     <section className="mx-auto max-w-5xl p-4">
       <h1 className="mb-4 text-xl font-semibold">{t("nav.experiences")}</h1>
@@ -48,11 +56,17 @@ function Experiences() {
         </label>
         <label className="flex flex-col gap-1">
           {t("experiences.filters.tag")}
-          <input
-            type="text"
+          <select
             value={tag}
             onChange={(e) => updateParam("tag", e.target.value)}
-          />
+          >
+            <option value="">{t("experiences.filters.allTags")}</option>
+            {tagOptions.map((tagOption) => (
+              <option key={tagOption} value={tagOption}>
+                {tagOption}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="flex flex-col gap-1">
           {t("experiences.filters.from")}

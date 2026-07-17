@@ -24,6 +24,7 @@
   "common.error": "Qualcosa è andato storto. Riprova.",
   "experiences.filters.city": "Città",
   "experiences.filters.tag": "Tag",
+  "experiences.filters.allTags": "Tutti i tag",
   "experiences.filters.from": "A partire dal",
   "experiences.empty": "Nessuna esperienza corrisponde ai filtri.",
   "experiences.seatsLeft": "posti rimasti",
