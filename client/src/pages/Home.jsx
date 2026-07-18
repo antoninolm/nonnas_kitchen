@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import ExperienceCard from "../components/ExperienceCard.jsx";
-import hero from "../assets/hero.png";
 
 function Home() {
   const { t } = useTranslation();
@@ -13,17 +12,14 @@ function Home() {
   return (
     <>
       <section className="border-b border-dashed border-border bg-accent-soft px-section-x py-section-y">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-gap text-center sm:flex-row sm:text-left">
-          <div className="flex-1">
-            <h1 className="mt-0 mb-3">{t("home.hero.title")}</h1>
-            <p className="mb-6 text-lg text-text-secondary">
-              {t("home.hero.subtitle")}
-            </p>
-            <Link to="/experiences" className="btn-primary">
-              {t("home.hero.cta")}
-            </Link>
-          </div>
-          <img src={hero} alt="" className="w-56 shrink-0 sm:w-72" />
+        <div className="mx-auto max-w-2xl text-center">
+          <h1 className="mt-0 mb-3">{t("home.hero.title")}</h1>
+          <p className="mb-6 text-lg text-text-secondary">
+            {t("home.hero.subtitle")}
+          </p>
+          <Link to="/experiences" className="btn-primary">
+            {t("home.hero.cta")}
+          </Link>
         </div>
       </section>
 
