@@ -7,10 +7,7 @@ function ExperienceCard({ experience }) {
   const seatsLeft = experience.seatsTotal - experience.seatsBooked;
 
   return (
-    <div
-      className="flex flex-col overflow-hidden rounded-lg border"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <div className="flex flex-col overflow-hidden rounded-lg border border-border">
       <Link to={`/experiences/${experience._id}`}>
         {experience.photos?.[0] && (
           <img

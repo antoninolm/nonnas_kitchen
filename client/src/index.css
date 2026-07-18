@@ -1,113 +1,127 @@
 @import "tailwindcss";
 
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/* Design system "Quaderno di Nonna" — tokens defined in CLAUDE.md.
+   @theme makes each token a CSS variable AND a Tailwind utility
+   (e.g. --color-accent → bg-accent, text-accent). */
+@theme {
+  /* colors */
+  --color-background: #fbf6ec; /* pagina, carta da quaderno */
+  --color-surface: #fdfbf6; /* card, riquadri */
+  --color-border: #c1602e; /* bordo tratteggiato, tratti a mano */
+  --color-text-primary: #3b2a1e; /* titoli, corpo */
+  --color-text-secondary: #8a6f4f; /* metadati, sottotitoli */
+  --color-accent: #8a2f12; /* CTA, logo, enfasi */
+  --color-accent-soft: #f3e3d8; /* hover/sfondi di enfasi */
+  --color-success: #6b7c4a; /* posti, conferme, paid */
 
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* type */
+  --font-display: "Caveat", cursive; /* 600/700 */
+  --font-body: "Lora", serif; /* 400/500/600 */
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* spacing */
+  --spacing-card: 14px;
+  --spacing-section-y: 26px;
+  --spacing-section-x: 30px;
+  --spacing-gap: 22px;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* radius */
+  --radius-card: 2px; /* quasi squadrato, effetto foglio */
+  --radius-pill: 20px; /* badge, tag */
+
+  /* shadow */
+  --shadow-card: 3px 3px 0 rgba(59, 42, 30, 0.08); /* carta appoggiata */
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    font: 18px/145% var(--font-body);
+    color-scheme: light;
+    color: var(--color-text-primary);
+    background: var(--color-background);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    @media (max-width: 1024px) {
+      font-size: 16px;
+    }
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  body {
+    margin: 0;
+  }
+
+  #root {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Caveat only on page titles (per design system: never on CTAs,
+     prices, labels or body). Handwriting needs bigger sizes and no
+     negative tracking. */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  h1 {
+    font-size: 44px;
+    line-height: 110%;
+    margin: 32px 0;
+    @media (max-width: 1024px) {
+      font-size: 34px;
+      margin: 20px 0;
+    }
+  }
+  h2 {
+    font-size: 30px;
+    line-height: 118%;
+    margin: 0 0 8px;
+    @media (max-width: 1024px) {
+      font-size: 24px;
+    }
+  }
+  p {
+    margin: 0;
   }
 }
 
-body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+@layer components {
+  /* Shared CTA styles — Lora 600, never Caveat (trust > charm on
+     anything involving money or input). Classes, not a React
+     component, so they work on both <button> and <Link>. */
+  .btn-primary,
+  .btn-secondary {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1;
+    padding: 10px 18px;
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    text-decoration: none;
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-surface);
+    border: 1px solid var(--color-accent);
   }
-}
-p {
-  margin: 0;
-}
+  .btn-primary:hover {
+    background: var(--color-text-primary);
+    border-color: var(--color-text-primary);
+  }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-accent);
+    border: 1px dashed var(--color-border);
+  }
+  .btn-secondary:hover {
+    background: var(--color-accent-soft);
+  }
 }
