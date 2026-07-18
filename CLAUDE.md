@@ -86,6 +86,49 @@ Machine translation of user-generated content
 Seasonal Challenges with voting and leaderboards → v2, only after the MVP is complete and deployed
 
 
-Design system
+Design system — "Quaderno di Nonna"
 
-(to be filled in after the Claude Design session: palette, fonts, spacing, warm/domestic visual tone)
+/* Fonts loaded via Google Fonts <link> in index.html:
+   Caveat 600;700 + Lora 400;500;600 (Task 32) */
+
+@theme {
+  /* colors */
+  --color-background: #FBF6EC;      /* pagina, carta da quaderno */
+  --color-surface: #FDFBF6;         /* card, riquadri */
+  --color-border: #C1602E;          /* bordo tratteggiato, tratti a mano */
+  --color-text-primary: #3B2A1E;    /* titoli, corpo */
+  --color-text-secondary: #8A6F4F;  /* metadati, sottotitoli */
+  --color-accent: #8A2F12;          /* CTA, logo, enfasi */
+  --color-accent-soft: #F3E3D8;     /* hover/sfondi di enfasi (mattone su crema) */
+  --color-success: #6B7C4A;         /* stato positivo: posti, conferme, paid */
+
+  /* type */
+  --font-display: "Caveat", cursive;  /* 600/700 */
+  --font-body: "Lora", serif;         /* 400/500/600 */
+
+  /* spacing */
+  --spacing-card: 14px;
+  --spacing-section-y: 26px;
+  --spacing-section-x: 30px;
+  --spacing-gap: 22px;
+
+  /* radius */
+  --radius-card: 2px;    /* quasi squadrato, effetto foglio */
+  --radius-pill: 20px;   /* badge, tag */
+
+  /* shadow */
+  --shadow-card: 3px 3px 0 rgba(59,42,30,.08); /* carta appoggiata */
+}
+
+Usage guidance:
+- --font-display (Caveat) ONLY for: logo/wordmark, page titles, the
+  verified-nonna badge. NEVER on CTAs, prices, form labels, or body —
+  those use --font-body (Lora 600 for CTAs/prices): trust > charm on
+  anything involving money or input.
+- --color-accent for primary CTAs and key emphasis; --color-accent-soft
+  for hovers and highlighted backgrounds; --color-success only for
+  positive states (seats left, confirmed, paid).
+- Cards: surface background, dashed/hand-drawn border (--color-border),
+  --radius-card, --shadow-card. Badges/tags: --radius-pill.
+- No color or font anywhere in the code outside these tokens.
+- Reference mockups live in design/mockups/.
