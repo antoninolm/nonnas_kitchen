@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import ExperienceCard from "../components/ExperienceCard.jsx";
+import hero from "../assets/hero.png";
 
 function Home() {
   const { t } = useTranslation();
@@ -11,18 +12,25 @@ function Home() {
 
   return (
     <>
-      <section className="mx-auto max-w-2xl p-8 text-center">
-        <h1 className="mb-2 text-3xl font-semibold">{t("home.hero.title")}</h1>
-        <p className="mb-4">{t("home.hero.subtitle")}</p>
-        <Link to="/experiences">{t("home.hero.cta")}</Link>
+      <section className="border-b border-dashed border-border bg-accent-soft px-section-x py-section-y">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-gap text-center sm:flex-row sm:text-left">
+          <div className="flex-1">
+            <h1 className="mt-0 mb-3">{t("home.hero.title")}</h1>
+            <p className="mb-6 text-lg text-text-secondary">
+              {t("home.hero.subtitle")}
+            </p>
+            <Link to="/experiences" className="btn-primary">
+              {t("home.hero.cta")}
+            </Link>
+          </div>
+          <img src={hero} alt="" className="w-56 shrink-0 sm:w-72" />
+        </div>
       </section>
 
       {featured.length > 0 && (
-        <section className="mx-auto max-w-5xl p-4">
-          <h2 className="mb-4 text-xl font-semibold">
-            {t("home.featured.title")}
-          </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mx-auto w-full max-w-5xl px-4 py-section-y sm:px-section-x">
+          <h2 className="mb-4">{t("home.featured.title")}</h2>
+          <div className="grid grid-cols-1 gap-gap sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((experience) => (
               <ExperienceCard key={experience._id} experience={experience} />
             ))}

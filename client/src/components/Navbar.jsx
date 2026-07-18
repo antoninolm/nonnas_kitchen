@@ -14,7 +14,7 @@ function Navbar() {
     }`;
 
   return (
-    <nav className="flex items-center justify-between gap-gap border-b border-dashed border-border bg-surface px-section-x py-3">
+    <nav className="flex flex-wrap items-center justify-between gap-x-gap gap-y-2 border-b border-dashed border-border bg-surface px-4 py-3 sm:px-section-x">
       <Link
         to="/"
         className="font-display text-3xl font-bold text-accent no-underline"
@@ -27,7 +27,7 @@ function Navbar() {
       >
         {t("nav.experiences")}
       </Link>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {user ? (
           <>
             <span className="text-text-secondary">

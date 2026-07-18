@@ -27,6 +27,7 @@
   "experiences.filters.allTags": "All tags",
   "experiences.filters.from": "From date",
   "experiences.empty": "No experiences match your filters.",
+  "experiences.emptyHint": "Try removing a filter or picking a different date.",
   "experiences.seatsLeft": "seats left",
   "experiences.detail.book": "Book",
   "experiences.detail.verified": "Verified nonna",

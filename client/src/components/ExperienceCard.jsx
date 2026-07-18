@@ -7,34 +7,45 @@ function ExperienceCard({ experience }) {
   const seatsLeft = experience.seatsTotal - experience.seatsBooked;
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-border">
-      <Link to={`/experiences/${experience._id}`}>
+    <div className="group flex h-full flex-col overflow-hidden rounded-card border border-dashed border-border bg-surface shadow-card transition-transform duration-150 hover:-translate-y-0.5">
+      <Link to={`/experiences/${experience._id}`} className="no-underline">
         {experience.photos?.[0] && (
           <img
             src={experience.photos[0]}
             alt=""
-            className="h-40 w-full object-cover"
+            className="h-40 w-full border-b border-dashed border-border object-cover"
           />
         )}
-        <div className="flex flex-col gap-1 p-3 pb-0">
-          <h3 className="font-semibold">{experience.title}</h3>
-          <p>{experience.recipeName}</p>
+        <div className="flex flex-col gap-1 p-card pb-0">
+          <h3 className="font-semibold leading-snug text-text-primary group-hover:text-accent">
+            {experience.title}
+          </h3>
+          <p className="text-sm italic text-text-secondary">
+            {experience.recipeName}
+          </p>
         </div>
       </Link>
-      <div className="flex flex-col gap-1 p-3">
+      <div className="flex flex-1 flex-col gap-1 p-card">
         {experience.host && (
-          <p>
-            <Link to={`/hosts/${experience.host._id}`}>
+          <p className="text-sm text-text-secondary">
+            <Link
+              to={`/hosts/${experience.host._id}`}
+              className="text-accent no-underline hover:underline"
+            >
               {experience.host.displayName}
             </Link>{" "}
             — {experience.host.city}
           </p>
         )}
-        <p>{formatDate(experience.date, lang)}</p>
-        <p>{formatPrice(experience.price, lang)}</p>
-        <p>
-          {seatsLeft} {t("experiences.seatsLeft")}
+        <p className="text-sm text-text-secondary">
+          {formatDate(experience.date, lang)}
         </p>
+        <div className="mt-auto flex items-baseline justify-between pt-2">
+          <p className="font-semibold">{formatPrice(experience.price, lang)}</p>
+          <p className="text-sm font-medium text-success">
+            {seatsLeft} {t("experiences.seatsLeft")}
+          </p>
+        </div>
       </div>
     </div>
   );

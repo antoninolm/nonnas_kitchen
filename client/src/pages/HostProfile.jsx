@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import ExperienceCard from "../components/ExperienceCard.jsx";
+import VerifiedBadge from "../components/VerifiedBadge.jsx";
 
 function HostProfile() {
   const { id } = useParams();
@@ -22,45 +23,48 @@ function HostProfile() {
   const { data: experiences, loading: experiencesLoading } =
     useFetch(experiencesUrl);
 
-  if (hostLoading) return <p className="p-4">{t("common.loading")}</p>;
+  if (hostLoading)
+    return <p className="p-4 text-text-secondary">{t("common.loading")}</p>;
   if (hostError)
     return (
-      <p className="p-4" role="alert">
+      <p className="p-4 font-medium text-accent" role="alert">
         {t("common.error")}
       </p>
     );
   if (!host) return null;
 
   return (
-    <section className="mx-auto max-w-2xl p-4">
+    <section className="mx-auto w-full max-w-2xl px-4 py-section-y">
       {host.photos?.[0] && (
         <img
           src={host.photos[0]}
           alt=""
-          className="mb-4 h-64 w-full rounded-lg object-cover"
+          className="mb-4 h-64 w-full rounded-card border border-dashed border-border object-cover shadow-card sm:h-80"
         />
       )}
-      <h1 className="text-2xl font-semibold">{host.displayName}</h1>
-      <p className="mb-2">
+      <h1 className="my-0">{host.displayName}</h1>
+      <p className="mb-2 flex flex-wrap items-center gap-2 text-text-secondary">
         {host.city}
         {host.neighborhood && ` — ${host.neighborhood}`}
-        {host.verified && <> · {t("experiences.detail.verified")}</>}
+        {host.verified && <VerifiedBadge />}
       </p>
-      {host.bio && <p className="mt-2">{host.bio}</p>}
+      {host.bio && <p className="mt-4 text-lg leading-relaxed">{host.bio}</p>}
 
-      <h2 className="mt-6 mb-4 text-xl font-semibold">
-        {t("hosts.upcomingExperiences")}
-      </h2>
-      {experiencesLoading && <p>{t("common.loading")}</p>}
+      <h2 className="mt-8 mb-4">{t("hosts.upcomingExperiences")}</h2>
+      {experiencesLoading && (
+        <p className="text-text-secondary">{t("common.loading")}</p>
+      )}
       {!experiencesLoading && experiences?.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-gap sm:grid-cols-2">
           {experiences.map((experience) => (
             <ExperienceCard key={experience._id} experience={experience} />
           ))}
         </div>
       )}
       {!experiencesLoading && experiences?.length === 0 && (
-        <p>{t("hosts.noUpcoming")}</p>
+        <div className="rounded-card border border-dashed border-border bg-surface p-card text-center text-text-secondary shadow-card">
+          <p>{t("hosts.noUpcoming")}</p>
+        </div>
       )}
     </section>
   );

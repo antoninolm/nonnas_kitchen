@@ -4,6 +4,11 @@ import { useFetch } from "../hooks/useFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import ExperienceCard from "../components/ExperienceCard.jsx";
 
+// Local field style (not a global class: forms/auth/dashboard keep
+// their own styling until their restyle task).
+const fieldClass =
+  "rounded-card border border-border bg-background px-3 py-2 font-body text-base text-text-primary focus:border-accent focus:outline-none";
+
 function Experiences() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,21 +47,23 @@ function Experiences() {
   );
 
   return (
-    <section className="mx-auto max-w-5xl p-4">
-      <h1 className="mb-4 text-xl font-semibold">{t("nav.experiences")}</h1>
+    <section className="mx-auto w-full max-w-5xl px-4 py-section-y sm:px-section-x">
+      <h1 className="mt-0 mb-4">{t("nav.experiences")}</h1>
 
-      <div className="mb-6 flex flex-wrap gap-3">
-        <label className="flex flex-col gap-1">
+      <div className="mb-6 flex flex-wrap items-end gap-4 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm font-semibold text-text-secondary">
           {t("experiences.filters.city")}
           <input
             type="text"
+            className={fieldClass}
             value={city}
             onChange={(e) => updateParam("city", e.target.value)}
           />
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm font-semibold text-text-secondary">
           {t("experiences.filters.tag")}
           <select
+            className={`${fieldClass} cursor-pointer`}
             value={tag}
             onChange={(e) => updateParam("tag", e.target.value)}
           >
@@ -68,24 +75,34 @@ function Experiences() {
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm font-semibold text-text-secondary">
           {t("experiences.filters.from")}
           <input
             type="date"
+            className={fieldClass}
             value={from}
             onChange={(e) => updateParam("from", e.target.value)}
           />
         </label>
       </div>
 
-      {loading && <p>{t("common.loading")}</p>}
-      {error && <p role="alert">{t("common.error")}</p>}
+      {loading && <p className="text-text-secondary">{t("common.loading")}</p>}
+      {error && (
+        <p className="font-medium text-accent" role="alert">
+          {t("common.error")}
+        </p>
+      )}
       {!loading && !error && experiences?.length === 0 && (
-        <p>{t("experiences.empty")}</p>
+        <div className="rounded-card border border-dashed border-border bg-surface px-card py-section-y text-center shadow-card">
+          <p className="text-lg font-semibold">{t("experiences.empty")}</p>
+          <p className="mt-1 text-text-secondary">
+            {t("experiences.emptyHint")}
+          </p>
+        </div>
       )}
 
       {!loading && !error && experiences?.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-gap sm:grid-cols-2 lg:grid-cols-3">
           {experiences.map((experience) => (
             <ExperienceCard key={experience._id} experience={experience} />
           ))}

@@ -5,6 +5,12 @@ import { useTranslation } from "../hooks/useTranslation";
 import { useAuth } from "../hooks/useAuth";
 import { formatDate, formatPrice } from "../utils/format";
 import { apiErrorKey } from "../utils/apiError";
+import VerifiedBadge from "../components/VerifiedBadge.jsx";
+
+// Local field style (not a global class: forms/auth/dashboard keep
+// their own styling until their restyle task).
+const fieldClass =
+  "rounded-card border border-border bg-background px-3 py-2 font-body text-base text-text-primary focus:border-accent focus:outline-none";
 
 function ExperienceDetail() {
   const { id } = useParams();
@@ -65,10 +71,11 @@ function ExperienceDetail() {
     }
   }
 
-  if (loading) return <p className="p-4">{t("common.loading")}</p>;
+  if (loading)
+    return <p className="p-4 text-text-secondary">{t("common.loading")}</p>;
   if (error)
     return (
-      <p className="p-4" role="alert">
+      <p className="p-4 font-medium text-accent" role="alert">
         {t("common.error")}
       </p>
     );
@@ -77,93 +84,135 @@ function ExperienceDetail() {
   const seatsLeft = experience.seatsTotal - experience.seatsBooked;
 
   return (
-    <section className="mx-auto max-w-2xl p-4">
+    <section className="mx-auto w-full max-w-2xl px-4 py-section-y">
       {experience.photos?.[0] && (
         <img
           src={experience.photos[0]}
           alt=""
-          className="mb-4 h-64 w-full rounded-lg object-cover"
+          className="mb-4 h-64 w-full rounded-card border border-dashed border-border object-cover shadow-card sm:h-80"
         />
       )}
-      <h1 className="text-2xl font-semibold">{experience.title}</h1>
-      <p className="mb-2">{experience.recipeName}</p>
+      <h1 className="my-0">{experience.title}</h1>
+      <p className="mb-3 text-lg italic text-text-secondary">
+        {experience.recipeName}
+      </p>
 
       {experience.host && (
-        <p className="mb-2">
-          <Link to={`/hosts/${experience.host._id}`}>
+        <p className="mb-2 flex flex-wrap items-center gap-2 text-text-secondary">
+          <Link
+            to={`/hosts/${experience.host._id}`}
+            className="font-semibold text-accent no-underline hover:underline"
+          >
             {experience.host.displayName}
-          </Link>{" "}
+          </Link>
           — {experience.host.city}
-          {experience.host.verified && (
-            <> · {t("experiences.detail.verified")}</>
-          )}
+          {experience.host.verified && <VerifiedBadge />}
         </p>
       )}
 
-      <p>{formatDate(experience.date, lang)}</p>
-      <p>{formatPrice(experience.price, lang)}</p>
-      <p>
-        {seatsLeft} {t("experiences.seatsLeft")}
-      </p>
-
       {experience.tags?.length > 0 && (
-        <p className="mt-2">{experience.tags.join(", ")}</p>
-      )}
-
-      {experience.story && <p className="mt-4">{experience.story}</p>}
-
-      {success ? (
-        <div className="mt-6">
-          <p>{t("experiences.detail.request.success")}</p>
-          <Link to="/dashboard">
-            {t("experiences.detail.request.dashboardLink")}
-          </Link>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {experience.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-pill bg-accent-soft px-3 py-1 text-sm text-accent"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
-      ) : (
-        seatsLeft > 0 && (
-          <>
-            <button type="button" className="mt-6" onClick={handleBook}>
-              {t("experiences.detail.book")}
-            </button>
-            {showForm && (
-              <form
-                onSubmit={handleSubmit}
-                className="mt-4 flex flex-col gap-3"
-              >
-                <label className="flex flex-col gap-1">
-                  {t("experiences.detail.request.seats")}
-                  <select
-                    value={seats}
-                    onChange={(e) => setSeats(Number(e.target.value))}
-                  >
-                    {Array.from({ length: seatsLeft }, (_, i) => i + 1).map(
-                      (n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ),
-                    )}
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1">
-                  {t("experiences.detail.request.message")}
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    required
-                    maxLength={500}
-                  />
-                </label>
-                <p>{t("experiences.detail.request.messageHelp")}</p>
-                {requestError && <p role="alert">{requestError}</p>}
-                <button type="submit" disabled={submitting}>
-                  {t("experiences.detail.request.submit")}
-                </button>
-              </form>
-            )}
-          </>
-        )
       )}
+
+      {experience.story && (
+        <p className="mt-5 leading-relaxed whitespace-pre-line">
+          {experience.story}
+        </p>
+      )}
+
+      <div className="mt-6 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="text-text-secondary">
+            {formatDate(experience.date, lang)}
+          </p>
+          <p className="text-xl font-semibold">
+            {formatPrice(experience.price, lang)}
+          </p>
+        </div>
+        <p className="mt-1 text-sm font-medium text-success">
+          {seatsLeft} {t("experiences.seatsLeft")}
+        </p>
+
+        {success ? (
+          <div className="mt-4">
+            <p className="font-medium text-success">
+              {t("experiences.detail.request.success")}
+            </p>
+            <Link to="/dashboard" className="text-accent">
+              {t("experiences.detail.request.dashboardLink")}
+            </Link>
+          </div>
+        ) : (
+          seatsLeft > 0 && (
+            <>
+              <button
+                type="button"
+                className="btn-primary mt-4 w-full"
+                onClick={handleBook}
+              >
+                {t("experiences.detail.book")}
+              </button>
+              {showForm && (
+                <form
+                  onSubmit={handleSubmit}
+                  className="mt-4 flex flex-col gap-3"
+                >
+                  <label className="flex flex-col gap-1 text-sm font-semibold text-text-secondary">
+                    {t("experiences.detail.request.seats")}
+                    <select
+                      className={`${fieldClass} cursor-pointer`}
+                      value={seats}
+                      onChange={(e) => setSeats(Number(e.target.value))}
+                    >
+                      {Array.from({ length: seatsLeft }, (_, i) => i + 1).map(
+                        (n) => (
+                          <option key={n} value={n}>
+                            {n}
+                          </option>
+                        ),
+                      )}
+                    </select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm font-semibold text-text-secondary">
+                    {t("experiences.detail.request.message")}
+                    <textarea
+                      className={`${fieldClass} min-h-24`}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      required
+                      maxLength={500}
+                    />
+                  </label>
+                  <p className="text-sm text-text-secondary">
+                    {t("experiences.detail.request.messageHelp")}
+                  </p>
+                  {requestError && (
+                    <p className="text-sm font-medium text-accent" role="alert">
+                      {requestError}
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    className="btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={submitting}
+                  >
+                    {t("experiences.detail.request.submit")}
+                  </button>
+                </form>
+              )}
+            </>
+          )
+        )}
+      </div>
     </section>
   );
 }
