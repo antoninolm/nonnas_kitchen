@@ -30,9 +30,12 @@ function Navbar() {
       <div className="flex flex-wrap items-center gap-3">
         {user ? (
           <>
-            <span className="text-text-secondary">
+            <Link
+              to="/profile"
+              className="text-text-secondary no-underline hover:text-accent"
+            >
               {t("nav.hi")}, {user.name}
-            </span>
+            </Link>
             <Link
               to="/dashboard"
               className="text-text-primary no-underline hover:text-accent"

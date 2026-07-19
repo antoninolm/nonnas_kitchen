@@ -120,5 +120,17 @@
   "bookingsSuccess.dashboardLink": "Go to your dashboard",
   "forms.errors.missingFields": "Please fill in all required fields.",
   "forms.errors.forbidden": "You don't have permission to do that.",
-  "forms.errors.generic": "Something went wrong. Please try again."
+  "forms.errors.generic": "Something went wrong. Please try again.",
+  "profile.title": "My profile",
+  "profile.email": "Email",
+  "profile.name": "Name",
+  "profile.avatar": "Avatar URL",
+  "profile.interests": "My interests",
+  "profile.interestsHint": "We'll use these to suggest experiences you'll love.",
+  "profile.city": "City",
+  "profile.budget": "Budget per experience (EUR)",
+  "profile.tags": "Tags (comma-separated)",
+  "profile.tagsHint": "e.g. desserts, vegetarian, neapolitan",
+  "profile.save": "Save profile",
+  "profile.saved": "Profile saved."
 }

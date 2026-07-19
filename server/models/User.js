@@ -6,6 +6,11 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, select: false },
     avatar: { type: String },
+    interests: {
+      city: { type: String, trim: true },
+      maxPrice: { type: Number, min: 0 },
+      tags: [String],
+    },
   },
   { timestamps: true },
 );

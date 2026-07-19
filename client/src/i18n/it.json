@@ -120,5 +120,17 @@
   "bookingsSuccess.dashboardLink": "Vai alla tua dashboard",
   "forms.errors.missingFields": "Compila tutti i campi obbligatori.",
   "forms.errors.forbidden": "Non hai il permesso di farlo.",
-  "forms.errors.generic": "Qualcosa è andato storto. Riprova."
+  "forms.errors.generic": "Qualcosa è andato storto. Riprova.",
+  "profile.title": "Il mio profilo",
+  "profile.email": "Email",
+  "profile.name": "Nome",
+  "profile.avatar": "URL avatar",
+  "profile.interests": "I miei interessi",
+  "profile.interestsHint": "Li useremo per suggerirti esperienze che ti piaceranno.",
+  "profile.city": "Città",
+  "profile.budget": "Budget per esperienza (EUR)",
+  "profile.tags": "Tag (separati da virgola)",
+  "profile.tagsHint": "es. dolci, vegetariano, napoletano",
+  "profile.save": "Salva profilo",
+  "profile.saved": "Profilo salvato."
 }

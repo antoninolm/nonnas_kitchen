@@ -320,6 +320,50 @@ async function main() {
     );
   }
 
+  // 21. GET /users/me -> 200 with the guest's email, never the password
+  const me = await request("GET", "/api/v1/users/me", { token: guestToken });
+  check(
+    "GET /users/me returns current user without password",
+    me.status === 200 && me.json?.email === "guest@demo.com" && !me.text.includes("password"),
+    `status ${me.status} (expected 200), email ${me.json?.email}, contains password: ${me.text.includes("password")}`,
+  );
+
+  // 22. PATCH /users/me updates name + interests, never the password
+  const patched = await request("PATCH", "/api/v1/users/me", {
+    token: guestToken,
+    body: {
+      name: "Smoke Guest",
+      interests: { city: "Bologna", maxPrice: 5000, tags: ["pasta", "vegetarian"] },
+    },
+  });
+  check(
+    "PATCH /users/me updates name and interests without password",
+    patched.status === 200 &&
+      patched.json?.name === "Smoke Guest" &&
+      patched.json?.interests?.city === "Bologna" &&
+      patched.json?.interests?.maxPrice === 5000 &&
+      !patched.text.includes("password"),
+    `status ${patched.status} (expected 200), name ${patched.json?.name}, interests ${JSON.stringify(patched.json?.interests)}`,
+  );
+
+  // 23. GET /users/me again -> the PATCH round-trips (values persisted)
+  const meAfter = await request("GET", "/api/v1/users/me", { token: guestToken });
+  check(
+    "PATCH /users/me persists (round-trip)",
+    meAfter.json?.name === "Smoke Guest" &&
+      meAfter.json?.interests?.maxPrice === 5000 &&
+      meAfter.json?.interests?.tags?.length === 2,
+    `name ${meAfter.json?.name}, interests ${JSON.stringify(meAfter.json?.interests)}`,
+  );
+
+  // 24. GET /users/me without a token -> 401
+  const meNoAuth = await request("GET", "/api/v1/users/me");
+  check(
+    "GET /users/me requires authentication",
+    meNoAuth.status === 401,
+    `status ${meNoAuth.status} (expected 401)`,
+  );
+
   await mongoose.disconnect();
   console.log(`\n${passed}/${passed + failed} passed${skipped ? `, ${skipped} skipped` : ""}`);
   process.exit(failed === 0 ? 0 : 1);

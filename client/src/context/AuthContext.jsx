@@ -47,6 +47,14 @@ export function AuthProvider({ children }) {
     return postJSON("/api/v1/auth/register", { name, email, password });
   }
 
+  function updateUser(nextUser) {
+    setUser(nextUser);
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ user: nextUser, token }),
+    );
+  }
+
   function logout() {
     setUser(null);
     setToken(null);
@@ -81,7 +89,16 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, authFetch, authFetchJSON }}
+      value={{
+        user,
+        token,
+        login,
+        register,
+        logout,
+        updateUser,
+        authFetch,
+        authFetchJSON,
+      }}
     >
       {children}
     </AuthContext.Provider>

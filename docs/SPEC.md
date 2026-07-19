@@ -22,7 +22,7 @@ User ──manages──▶ HostProfile ──offers──▶ Experience ──r
 
 User
 
-FieldTypeConstraintsnameStringrequired, trimemailStringrequired, unique, lowercasepasswordStringrequired, min 8 chars, select: false (bcrypt hash)avatarStringoptional (URL)timestampscreatedAt, updatedAt
+FieldTypeConstraintsnameStringrequired, trimemailStringrequired, unique, lowercasepasswordStringrequired, min 8 chars, select: false (bcrypt hash)avatarStringoptional (URL)interests{ city: String, maxPrice: Number (cents), tags: [String] }all optional — powers personalization (Task 37)timestampscreatedAt, updatedAt
 
 HostProfile
 
@@ -72,6 +72,12 @@ Note: Experience has no city field of its own — city lives on HostProfile. The
 
 Note: PATCH /bookings/:id transitions — pending → confirmed (host manager only); pending → cancelled (guest withdrawing, or host manager declining); confirmed → cancelled (guest only — a manager cannot cancel an already-confirmed booking in the MVP). Any other status change is rejected (400 invalid transition); a valid transition attempted by the wrong actor is rejected (403). Cancelling releases the booked seats (experience.seatsBooked -= booking.seats). Decided in Task 12.
 
+User (middleware: JWT)
+
+MethodRouteProtectionNotesGET/users/meJWTcurrent user, never the passwordPATCH/users/meJWTupdates name, avatar, interests only (whitelist — email/password are never read from the body); maxPrice must be >= 0 (400 otherwise)
+
+Note: PATCH /users/me whitelists its updatable fields by destructuring only { name, avatar, interests } from the body — email and password changes are impossible by construction, not by validation. Decided in Task 37.
+
 Cross-cutting rules
 
 
@@ -82,7 +88,7 @@ Errors: JSON { error: string } with proper status codes (400/401/403/404/409)
 
 4. Client — pages (React Router 7)
 
-RouteProtectedContent/—Landing + featured experiences/experiences—List with city/tag/date filters (synced with query params)/experiences/:id—Detail + book CTA (if not logged in → redirect to login)/hosts/:id—Nonna's public page: bio, story, reviews, badge/login, /register—/dashboard✅Tabbed double view: "My bookings" (guest) / "My profiles" (manager)/hosts/new✅"Bring your nonna online" wizard/hosts/:id/experiences/new✅Add an experience to one of my host profiles (reached from the dashboard's "My profiles" tab)
+RouteProtectedContent/—Landing + featured experiences/experiences—List with city/tag/date filters (synced with query params)/experiences/:id—Detail + book CTA (if not logged in → redirect to login)/hosts/:id—Nonna's public page: bio, story, reviews, badge/login, /register—/dashboard✅Tabbed double view: "My bookings" (guest) / "My profiles" (manager)/hosts/new✅"Bring your nonna online" wizard/hosts/:id/experiences/new✅Add an experience to one of my host profiles (reached from the dashboard's "My profiles" tab)/profile✅Personal profile: avatar, name, email (read-only) + edit form for name, avatar URL, interests (reached from the navbar greeting). Added in Task 37
 
 State & patterns
 

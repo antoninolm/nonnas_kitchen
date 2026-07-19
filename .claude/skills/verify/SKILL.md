@@ -8,7 +8,7 @@ description: How to run and visually verify the Nonna's Kitchen client + API loc
 ## Servers
 - API: `cd server && npm run dev` → http://localhost:8080 (needs server/.env: MONGODB_URI, JWT_SECRET, CLIENT_URL, STRIPE_SECRET_KEY). Health: `GET /api/v1/health`.
 - Client: `cd client && npm run dev` → http://localhost:5173 (Vite proxies /api/* to 8080). Check `ss -ltn | grep -E ':(8080|5173)'` first — they are often already running; don't restart them.
-- Backend regression gate: `cd server && npm run smoke` (19 checks; **re-seeds the DB** via seed.js).
+- Backend regression gate: `cd server && npm run smoke` (23 checks; **re-seeds the DB** via seed.js).
 
 ## Headless browser (screenshots)
 No playwright package is installed in the repo. Cached browser lives at
