@@ -4,11 +4,6 @@ import { useFetch } from "../hooks/useFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import ExperienceCard from "../components/ExperienceCard.jsx";
 
-// Local field style (not a global class: forms/auth/dashboard keep
-// their own styling until their restyle task).
-const fieldClass =
-  "rounded-card border border-border bg-background px-3 py-2 font-body text-base text-text-primary focus:border-accent focus:outline-none";
-
 function Experiences() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,19 +46,19 @@ function Experiences() {
       <h1 className="mt-0 mb-4">{t("nav.experiences")}</h1>
 
       <div className="mb-6 flex flex-wrap items-end gap-4 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
-        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm font-semibold text-text-secondary">
+        <label className="form-label min-w-40 flex-1">
           {t("experiences.filters.city")}
           <input
             type="text"
-            className={fieldClass}
+            className="field"
             value={city}
             onChange={(e) => updateParam("city", e.target.value)}
           />
         </label>
-        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm font-semibold text-text-secondary">
+        <label className="form-label min-w-40 flex-1">
           {t("experiences.filters.tag")}
           <select
-            className={`${fieldClass} cursor-pointer`}
+            className="field cursor-pointer"
             value={tag}
             onChange={(e) => updateParam("tag", e.target.value)}
           >
@@ -75,11 +70,11 @@ function Experiences() {
             ))}
           </select>
         </label>
-        <label className="flex min-w-40 flex-1 flex-col gap-1 text-sm font-semibold text-text-secondary">
+        <label className="form-label min-w-40 flex-1">
           {t("experiences.filters.from")}
           <input
             type="date"
-            className={fieldClass}
+            className="field"
             value={from}
             onChange={(e) => updateParam("from", e.target.value)}
           />

@@ -36,32 +36,47 @@ function Login() {
   }
 
   return (
-    <section className="mx-auto max-w-sm p-4">
-      <h1 className="mb-4 text-xl font-semibold">{t("auth.login.title")}</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <label className="flex flex-col gap-1">
-          {t("auth.login.email")}
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          {t("auth.login.password")}
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
-        {error && <p role="alert">{error}</p>}
-        <button type="submit">{t("auth.login.submit")}</button>
-      </form>
-      <p className="mt-3">
-        <Link to="/register">{t("nav.register")}</Link>
+    <section className="mx-auto w-full max-w-sm px-4 py-section-y">
+      <h1 className="mt-0 mb-1 text-center">{t("auth.login.title")}</h1>
+      <p className="mb-6 text-center text-text-secondary">
+        {t("auth.login.subtitle")}
+      </p>
+      <div className="rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <label className="form-label">
+            {t("auth.login.email")}
+            <input
+              type="email"
+              className="field"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+          <label className="form-label">
+            {t("auth.login.password")}
+            <input
+              type="password"
+              className="field"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          )}
+          <button type="submit" className="btn-primary w-full">
+            {t("auth.login.submit")}
+          </button>
+        </form>
+      </div>
+      <p className="mt-4 text-center text-sm">
+        <Link to="/register" className="text-accent underline">
+          {t("nav.register")}
+        </Link>
       </p>
     </section>
   );

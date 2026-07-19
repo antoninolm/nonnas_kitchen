@@ -88,80 +88,109 @@ function HostNew() {
   }
 
   return (
-    <section className="mx-auto max-w-sm p-4">
-      <h1 className="mb-4 text-xl font-semibold">{t("hostNew.title")}</h1>
+    <section className="mx-auto w-full max-w-sm px-4 py-section-y">
+      <h1 className="mt-0 mb-4">{t("hostNew.title")}</h1>
 
       {step === 1 && (
         <form onSubmit={handleNext} className="flex flex-col gap-3">
-          <h2 className="font-semibold">{t("hostNew.step1.heading")}</h2>
-          <label className="flex flex-col gap-1">
-            {t("hostNew.step1.displayName")}
-            <input
-              type="text"
-              value={hostValues.displayName}
-              onChange={setHostField("displayName")}
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            {t("hostNew.step1.city")}
-            <input
-              type="text"
-              value={hostValues.city}
-              onChange={setHostField("city")}
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            {t("hostNew.step1.bio")}
-            <textarea value={hostValues.bio} onChange={setHostField("bio")} />
-          </label>
-          <label className="flex flex-col gap-1">
-            {t("hostNew.step1.neighborhood")}
-            <input
-              type="text"
-              value={hostValues.neighborhood}
-              onChange={setHostField("neighborhood")}
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            {t("hostNew.step1.photo")}
-            <input
-              type="text"
-              value={hostValues.photo}
-              onChange={setHostField("photo")}
-            />
-          </label>
-          <button type="submit">{t("hostNew.next")}</button>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("hostNew.step1.label")}
+          </p>
+          <h2>{t("hostNew.step1.heading")}</h2>
+          <div className="flex flex-col gap-3 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+            <label className="form-label">
+              {t("hostNew.step1.displayName")}
+              <input
+                type="text"
+                className="field"
+                value={hostValues.displayName}
+                onChange={setHostField("displayName")}
+                required
+              />
+            </label>
+            <label className="form-label">
+              {t("hostNew.step1.city")}
+              <input
+                type="text"
+                className="field"
+                value={hostValues.city}
+                onChange={setHostField("city")}
+                required
+              />
+            </label>
+            <label className="form-label">
+              {t("hostNew.step1.bio")}
+              <textarea
+                className="field min-h-24"
+                value={hostValues.bio}
+                onChange={setHostField("bio")}
+              />
+            </label>
+            <label className="form-label">
+              {t("hostNew.step1.neighborhood")}
+              <input
+                type="text"
+                className="field"
+                value={hostValues.neighborhood}
+                onChange={setHostField("neighborhood")}
+              />
+            </label>
+            <label className="form-label">
+              {t("hostNew.step1.photo")}
+              <input
+                type="text"
+                className="field"
+                value={hostValues.photo}
+                onChange={setHostField("photo")}
+              />
+            </label>
+          </div>
+          <button type="submit" className="btn-primary">
+            {t("hostNew.next")}
+          </button>
         </form>
       )}
 
       {step === 2 && (
         <form onSubmit={handleFinish} className="flex flex-col gap-3">
-          <h2 className="font-semibold">{t("hostNew.step2.heading")}</h2>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={addExperience}
-              onChange={(e) => setAddExperience(e.target.checked)}
-            />
-            {t("hostNew.step2.addToggle")}
-          </label>
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("hostNew.step2.label")}
+          </p>
+          <h2>{t("hostNew.step2.heading")}</h2>
+          <div className="flex flex-col gap-3 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+            <label className="flex items-center gap-2 text-sm font-semibold text-text-secondary">
+              <input
+                type="checkbox"
+                className="accent-accent"
+                checked={addExperience}
+                onChange={(e) => setAddExperience(e.target.checked)}
+              />
+              {t("hostNew.step2.addToggle")}
+            </label>
 
-          {addExperience && (
-            <ExperienceFields
-              values={experienceValues}
-              onChange={setExperienceField}
-            />
+            {addExperience && (
+              <ExperienceFields
+                values={experienceValues}
+                onChange={setExperienceField}
+              />
+            )}
+          </div>
+
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
           )}
 
-          {error && <p role="alert">{error}</p>}
-
           <div className="flex gap-3">
-            <button type="button" onClick={() => setStep(1)}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setStep(1)}
+            >
               {t("hostNew.back")}
             </button>
-            <button type="submit" disabled={submitting}>
+            <button type="submit" className="btn-primary" disabled={submitting}>
               {t("hostNew.finish")}
             </button>
           </div>

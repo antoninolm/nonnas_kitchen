@@ -124,4 +124,42 @@
   .btn-secondary:hover {
     background: var(--color-accent-soft);
   }
+
+  .btn-primary:disabled,
+  .btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Shared form language (Task 34) — one look for every field.
+     16px font also prevents iOS zoom-on-focus. */
+  .field {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--color-text-primary);
+  }
+  .field:focus {
+    border-color: var(--color-accent);
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  .form-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  .form-error {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-accent);
+  }
 }

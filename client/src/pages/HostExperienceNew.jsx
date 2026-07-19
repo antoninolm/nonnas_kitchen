@@ -52,14 +52,18 @@ function HostExperienceNew() {
   }
 
   return (
-    <section className="mx-auto max-w-sm p-4">
-      <h1 className="mb-4 text-xl font-semibold">
-        {t("hostExperienceNew.title")}
-      </h1>
+    <section className="mx-auto w-full max-w-sm px-4 py-section-y">
+      <h1 className="mt-0 mb-4">{t("hostExperienceNew.title")}</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <ExperienceFields values={values} onChange={handleChange} />
-        {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={submitting}>
+        <div className="rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+          <ExperienceFields values={values} onChange={handleChange} />
+        </div>
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="btn-primary" disabled={submitting}>
           {t("hostExperienceNew.submit")}
         </button>
       </form>

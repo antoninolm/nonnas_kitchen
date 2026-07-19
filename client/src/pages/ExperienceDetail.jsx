@@ -7,11 +7,6 @@ import { formatDate, formatPrice } from "../utils/format";
 import { apiErrorKey } from "../utils/apiError";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 
-// Local field style (not a global class: forms/auth/dashboard keep
-// their own styling until their restyle task).
-const fieldClass =
-  "rounded-card border border-border bg-background px-3 py-2 font-body text-base text-text-primary focus:border-accent focus:outline-none";
-
 function ExperienceDetail() {
   const { id } = useParams();
   const { lang, t } = useTranslation();
@@ -166,10 +161,10 @@ function ExperienceDetail() {
                   onSubmit={handleSubmit}
                   className="mt-4 flex flex-col gap-3"
                 >
-                  <label className="flex flex-col gap-1 text-sm font-semibold text-text-secondary">
+                  <label className="form-label">
                     {t("experiences.detail.request.seats")}
                     <select
-                      className={`${fieldClass} cursor-pointer`}
+                      className="field cursor-pointer"
                       value={seats}
                       onChange={(e) => setSeats(Number(e.target.value))}
                     >
@@ -182,10 +177,10 @@ function ExperienceDetail() {
                       )}
                     </select>
                   </label>
-                  <label className="flex flex-col gap-1 text-sm font-semibold text-text-secondary">
+                  <label className="form-label">
                     {t("experiences.detail.request.message")}
                     <textarea
-                      className={`${fieldClass} min-h-24`}
+                      className="field min-h-24"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       required
@@ -196,13 +191,13 @@ function ExperienceDetail() {
                     {t("experiences.detail.request.messageHelp")}
                   </p>
                   {requestError && (
-                    <p className="text-sm font-medium text-accent" role="alert">
+                    <p className="form-error" role="alert">
                       {requestError}
                     </p>
                   )}
                   <button
                     type="submit"
-                    className="btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    className="btn-primary"
                     disabled={submitting}
                   >
                     {t("experiences.detail.request.submit")}
