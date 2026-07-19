@@ -134,7 +134,12 @@ function ExperienceDetail() {
           </p>
         </div>
         <p className="mt-1 text-sm font-medium text-success">
-          {seatsLeft} {t("experiences.seatsLeft")}
+          {seatsLeft}{" "}
+          {t(
+            seatsLeft === 1
+              ? "experiences.seatsLeft.one"
+              : "experiences.seatsLeft.other",
+          )}
         </p>
 
         {success ? (

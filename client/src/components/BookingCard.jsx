@@ -73,7 +73,13 @@ function BookingCard({ booking, onChange }) {
         {formatDate(booking.experience.date, lang)}
       </p>
       <p className="text-sm text-text-secondary">
-        {booking.seats} {t("dashboard.bookings.seatsCount")} —{" "}
+        {booking.seats}{" "}
+        {t(
+          booking.seats === 1
+            ? "dashboard.bookings.seatsCount.one"
+            : "dashboard.bookings.seatsCount.other",
+        )}{" "}
+        —{" "}
         {formatPrice(total, lang)}
       </p>
       <p className="mt-1 flex flex-wrap items-center gap-2">

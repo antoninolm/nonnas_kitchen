@@ -43,7 +43,12 @@ function ExperienceCard({ experience }) {
         <div className="mt-auto flex items-baseline justify-between pt-2">
           <p className="font-semibold">{formatPrice(experience.price, lang)}</p>
           <p className="text-sm font-medium text-success">
-            {seatsLeft} {t("experiences.seatsLeft")}
+            {seatsLeft}{" "}
+            {t(
+              seatsLeft === 1
+                ? "experiences.seatsLeft.one"
+                : "experiences.seatsLeft.other",
+            )}
           </p>
         </div>
       </div>

@@ -72,7 +72,12 @@ function HostExperienceList({ hostId }) {
                 <span className="font-semibold">{experience.title}</span>
                 <span className="text-sm text-text-secondary">
                   {formatDate(experience.date, lang)} · {experience.seatsBooked}
-                  /{experience.seatsTotal} {t("dashboard.profiles.seatsCount")}
+                  /{experience.seatsTotal}{" "}
+                  {t(
+                    experience.seatsTotal === 1
+                      ? "dashboard.profiles.seatsCount.one"
+                      : "dashboard.profiles.seatsCount.other",
+                  )}
                 </span>
                 <span
                   className={`rounded-pill px-3 py-1 text-sm font-medium ${STATUS_BADGE[experience.status]}`}

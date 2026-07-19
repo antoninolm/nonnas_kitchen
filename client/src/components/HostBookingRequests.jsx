@@ -68,7 +68,11 @@ function HostBookingRequests({ hostId, onChange = () => {} }) {
               <p className="text-sm text-text-secondary">
                 {booking.experience.title} ·{" "}
                 {formatDate(booking.experience.date, lang)} · {booking.seats}{" "}
-                {t("dashboard.bookings.seatsCount")}
+                {t(
+                  booking.seats === 1
+                    ? "dashboard.bookings.seatsCount.one"
+                    : "dashboard.bookings.seatsCount.other",
+                )}
               </p>
               <p className="mt-1 flex flex-wrap items-center gap-2">
                 <span
