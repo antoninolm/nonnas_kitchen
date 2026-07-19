@@ -3,6 +3,13 @@ import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
 import { formatDate, formatPrice } from "../utils/format";
 
+const STATUS_BADGE = {
+  pending: "bg-accent-soft text-accent",
+  confirmed: "bg-success text-surface",
+  cancelled: "border border-text-secondary text-text-secondary",
+  completed: "border border-text-secondary text-text-secondary",
+};
+
 function BookingCard({ booking, onChange }) {
   const { authFetchJSON } = useAuth();
   const { lang, t } = useTranslation();
@@ -46,7 +53,9 @@ function BookingCard({ booking, onChange }) {
     setAddressLoading(true);
     setError(null);
     try {
-      const data = await authFetchJSON(`/api/v1/bookings/${booking._id}/address`);
+      const data = await authFetchJSON(
+        `/api/v1/bookings/${booking._id}/address`,
+      );
       setAddress(data.address);
     } catch {
       setError(t("forms.errors.generic"));
@@ -58,26 +67,43 @@ function BookingCard({ booking, onChange }) {
   const total = booking.experience.price * booking.seats;
 
   return (
-    <li className="flex flex-col gap-1 rounded-lg border p-3">
+    <li className="flex flex-col gap-1 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
       <p className="font-semibold">{booking.experience.title}</p>
-      <p>{formatDate(booking.experience.date, lang)}</p>
-      <p>
+      <p className="text-sm text-text-secondary">
+        {formatDate(booking.experience.date, lang)}
+      </p>
+      <p className="text-sm text-text-secondary">
         {booking.seats} {t("dashboard.bookings.seatsCount")} —{" "}
         {formatPrice(total, lang)}
       </p>
-      <p>
-        {t(`dashboard.bookings.status.${booking.status}`)} ·{" "}
-        {booking.paid
-          ? t("dashboard.bookings.paid")
-          : t("dashboard.bookings.unpaid")}
+      <p className="mt-1 flex flex-wrap items-center gap-2">
+        <span
+          className={`rounded-pill px-3 py-1 text-sm font-medium ${STATUS_BADGE[booking.status]}`}
+        >
+          {t(`dashboard.bookings.status.${booking.status}`)}
+        </span>
+        {booking.paid ? (
+          <span className="text-sm font-medium text-success">
+            {t("dashboard.bookings.paid")}
+          </span>
+        ) : (
+          <span className="text-sm text-text-secondary">
+            {t("dashboard.bookings.unpaid")}
+          </span>
+        )}
       </p>
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="form-error">
+          {error}
+        </p>
+      )}
 
       <div className="mt-2 flex flex-wrap gap-3">
         {booking.status === "pending" && (
           <button
             type="button"
+            className="btn-secondary"
             onClick={() => cancelBooking("dashboard.bookings.withdrawConfirm")}
             disabled={submitting}
           >
@@ -85,13 +111,19 @@ function BookingCard({ booking, onChange }) {
           </button>
         )}
         {booking.status === "confirmed" && !booking.paid && (
-          <button type="button" onClick={handlePayNow} disabled={submitting}>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={handlePayNow}
+            disabled={submitting}
+          >
             {t("dashboard.bookings.payNow")}
           </button>
         )}
         {booking.status === "confirmed" && booking.paid && !address && (
           <button
             type="button"
+            className="btn-primary"
             onClick={handleShowAddress}
             disabled={addressLoading}
           >
@@ -101,6 +133,7 @@ function BookingCard({ booking, onChange }) {
         {booking.status === "confirmed" && (
           <button
             type="button"
+            className="btn-secondary"
             onClick={() => cancelBooking("dashboard.bookings.cancelConfirm")}
             disabled={submitting}
           >
@@ -109,7 +142,11 @@ function BookingCard({ booking, onChange }) {
         )}
       </div>
 
-      {address && <p className="mt-2">{address}</p>}
+      {address && (
+        <p className="mt-2 rounded-card bg-accent-soft p-card font-medium text-accent">
+          {address}
+        </p>
+      )}
     </li>
   );
 }

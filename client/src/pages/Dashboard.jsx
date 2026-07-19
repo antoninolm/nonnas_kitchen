@@ -24,25 +24,55 @@ function Dashboard() {
     error: profilesError,
   } = useAuthFetch("/api/v1/hosts/mine");
 
-  return (
-    <section className="mx-auto max-w-2xl p-4">
-      <h1 className="mb-4 text-xl font-semibold">{t("dashboard.title")}</h1>
+  const tabClass = (tab) =>
+    `-mb-px cursor-pointer rounded-t-card border border-dashed px-4 py-2 font-semibold ${
+      activeTab === tab
+        ? "border-border border-b-0 bg-surface text-accent"
+        : "border-transparent bg-transparent text-text-secondary hover:text-accent"
+    }`;
 
-      <div className="mb-4 flex gap-3">
-        <button type="button" onClick={() => setActiveTab("bookings")}>
+  return (
+    <section className="mx-auto w-full max-w-3xl px-4 py-section-y">
+      <h1 className="mb-4">{t("dashboard.title")}</h1>
+
+      <div
+        role="tablist"
+        className="mb-4 flex gap-2 border-b border-dashed border-border"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "bookings"}
+          onClick={() => setActiveTab("bookings")}
+          className={tabClass("bookings")}
+        >
           {t("dashboard.tabs.bookings")}
         </button>
-        <button type="button" onClick={() => setActiveTab("profiles")}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "profiles"}
+          onClick={() => setActiveTab("profiles")}
+          className={tabClass("profiles")}
+        >
           {t("dashboard.tabs.profiles")}
         </button>
       </div>
 
       {activeTab === "bookings" && (
         <div className="flex flex-col gap-3">
-          {bookingsLoading && <p>{t("common.loading")}</p>}
-          {bookingsError && <p role="alert">{t("common.error")}</p>}
+          {bookingsLoading && (
+            <p className="text-text-secondary">{t("common.loading")}</p>
+          )}
+          {bookingsError && (
+            <p role="alert" className="font-medium text-accent">
+              {t("common.error")}
+            </p>
+          )}
           {!bookingsLoading && !bookingsError && bookings?.length === 0 && (
-            <p>{t("dashboard.bookings.empty")}</p>
+            <p className="text-text-secondary">
+              {t("dashboard.bookings.empty")}
+            </p>
           )}
           {!bookingsLoading && !bookingsError && bookings?.length > 0 && (
             <ul className="flex flex-col gap-3">
@@ -60,36 +90,60 @@ function Dashboard() {
 
       {activeTab === "profiles" && (
         <div className="flex flex-col gap-3">
-          {profilesLoading && <p>{t("common.loading")}</p>}
-          {profilesError && <p role="alert">{t("common.error")}</p>}
+          {profilesLoading && (
+            <p className="text-text-secondary">{t("common.loading")}</p>
+          )}
+          {profilesError && (
+            <p role="alert" className="font-medium text-accent">
+              {t("common.error")}
+            </p>
+          )}
           {!profilesLoading && !profilesError && profiles?.length === 0 && (
-            <p>{t("dashboard.profiles.empty")}</p>
+            <div className="flex flex-col items-center gap-4 rounded-card border border-dashed border-border bg-surface px-card py-section-y text-center shadow-card">
+              <p>{t("dashboard.profiles.empty")}</p>
+              <Link to="/hosts/new" className="btn-primary">
+                {t("dashboard.profiles.emptyCta")}
+              </Link>
+            </div>
           )}
           {!profilesLoading && !profilesError && profiles?.length > 0 && (
-            <ul className="flex flex-col gap-3">
-              {profiles.map((host) => (
-                <li key={host._id} className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <Link to={`/hosts/${host._id}`}>
-                      {host.displayName} — {host.city}
-                    </Link>
-                    <Link to={`/hosts/${host._id}/experiences/new`}>
-                      {t("dashboard.profiles.addExperience")}
-                    </Link>
-                  </div>
-                  <HostExperienceList
-                    key={`${host._id}-${experiencesRefreshKey}`}
-                    hostId={host._id}
-                  />
-                  <HostBookingRequests
-                    hostId={host._id}
-                    onChange={() => setExperiencesRefreshKey((k) => k + 1)}
-                  />
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="flex flex-col gap-gap">
+                {profiles.map((host) => (
+                  <li
+                    key={host._id}
+                    className="rounded-card border border-dashed border-border bg-surface p-card shadow-card"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <Link
+                        to={`/hosts/${host._id}`}
+                        className="text-lg font-semibold text-text-primary hover:text-accent"
+                      >
+                        {host.displayName} — {host.city}
+                      </Link>
+                      <Link
+                        to={`/hosts/${host._id}/experiences/new`}
+                        className="btn-secondary"
+                      >
+                        {t("dashboard.profiles.addExperience")}
+                      </Link>
+                    </div>
+                    <HostExperienceList
+                      key={`${host._id}-${experiencesRefreshKey}`}
+                      hostId={host._id}
+                    />
+                    <HostBookingRequests
+                      hostId={host._id}
+                      onChange={() => setExperiencesRefreshKey((k) => k + 1)}
+                    />
+                  </li>
+                ))}
+              </ul>
+              <Link to="/hosts/new" className="btn-secondary self-start">
+                {t("dashboard.profiles.createNew")}
+              </Link>
+            </>
           )}
-          <Link to="/hosts/new">{t("dashboard.profiles.createNew")}</Link>
         </div>
       )}
     </section>

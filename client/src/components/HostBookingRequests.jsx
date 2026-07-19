@@ -4,6 +4,13 @@ import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import { formatDate } from "../utils/format";
 
+const STATUS_BADGE = {
+  pending: "bg-accent-soft text-accent",
+  confirmed: "bg-success text-surface",
+  cancelled: "border border-text-secondary text-text-secondary",
+  completed: "border border-text-secondary text-text-secondary",
+};
+
 function HostBookingRequests({ hostId, onChange = () => {} }) {
   const { authFetchJSON } = useAuth();
   const { lang, t } = useTranslation();
@@ -30,42 +37,67 @@ function HostBookingRequests({ hostId, onChange = () => {} }) {
   }
 
   return (
-    <div className="mt-2 flex flex-col gap-2">
+    <div className="mt-4 flex flex-col gap-2 border-t border-dashed border-border pt-4">
       <h3 className="font-semibold">
         {t("dashboard.profiles.bookingRequests")}
       </h3>
-      {loading && <p>{t("common.loading")}</p>}
-      {error && <p role="alert">{t("common.error")}</p>}
-      {actionError && <p role="alert">{actionError}</p>}
+      {loading && <p className="text-text-secondary">{t("common.loading")}</p>}
+      {error && (
+        <p role="alert" className="form-error">
+          {t("common.error")}
+        </p>
+      )}
+      {actionError && (
+        <p role="alert" className="form-error">
+          {actionError}
+        </p>
+      )}
       {!loading && !error && bookings?.length === 0 && (
-        <p>{t("dashboard.profiles.noBookingRequests")}</p>
+        <p className="text-text-secondary">
+          {t("dashboard.profiles.noBookingRequests")}
+        </p>
       )}
       {!loading && !error && bookings?.length > 0 && (
         <ul className="flex flex-col gap-2">
           {bookings.map((booking) => (
             <li
               key={booking._id}
-              className="flex flex-wrap items-center justify-between gap-3"
+              className="flex flex-col gap-1 rounded-card border border-dashed border-border p-3"
             >
-              <span>
-                {booking.guest.name} — {booking.experience.title} —{" "}
-                {formatDate(booking.experience.date, lang)} — {booking.seats}{" "}
-                {t("dashboard.bookings.seatsCount")} —{" "}
-                {booking.paid
-                  ? t("dashboard.bookings.paid")
-                  : t("dashboard.bookings.unpaid")}{" "}
-                — {t(`dashboard.bookings.status.${booking.status}`)}
-              </span>
+              <p className="font-semibold">{booking.guest.name}</p>
+              <p className="text-sm text-text-secondary">
+                {booking.experience.title} ·{" "}
+                {formatDate(booking.experience.date, lang)} · {booking.seats}{" "}
+                {t("dashboard.bookings.seatsCount")}
+              </p>
+              <p className="mt-1 flex flex-wrap items-center gap-2">
+                <span
+                  className={`rounded-pill px-3 py-1 text-sm font-medium ${STATUS_BADGE[booking.status]}`}
+                >
+                  {t(`dashboard.bookings.status.${booking.status}`)}
+                </span>
+                {booking.paid ? (
+                  <span className="text-sm font-medium text-success">
+                    {t("dashboard.bookings.paid")}
+                  </span>
+                ) : (
+                  <span className="text-sm text-text-secondary">
+                    {t("dashboard.bookings.unpaid")}
+                  </span>
+                )}
+              </p>
               {booking.status === "pending" && (
-                <span className="flex gap-2">
+                <span className="mt-2 flex gap-3">
                   <button
                     type="button"
+                    className="btn-primary"
                     onClick={() => handleDecision(booking._id, "confirmed")}
                   >
                     {t("dashboard.profiles.accept")}
                   </button>
                   <button
                     type="button"
+                    className="btn-secondary"
                     onClick={() => handleDecision(booking._id, "cancelled")}
                   >
                     {t("dashboard.profiles.decline")}
