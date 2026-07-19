@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "../hooks/useTranslation";
 import { useAuth } from "../hooks/useAuth";
+import logo from "../assets/logo.png";
 
 function Navbar() {
   const { lang, setLang, t } = useTranslation();
@@ -17,8 +18,9 @@ function Navbar() {
     <nav className="flex flex-wrap items-center justify-between gap-x-gap gap-y-2 border-b border-dashed border-border bg-surface px-4 py-3 sm:px-section-x">
       <Link
         to="/"
-        className="font-display text-3xl font-bold text-accent no-underline"
+        className="flex items-center gap-2 font-display text-3xl font-bold text-accent no-underline"
       >
+        <img src={logo} alt="" className="h-8 w-8" />
         {t("nav.brand")}
       </Link>
       <Link
