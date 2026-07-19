@@ -65,3 +65,19 @@ All seven items completed and verified — see docs/FIX_ROUND_REVIEW.md
 
 F3/F4 reconsidered after the fix round against remaining time (Phase 3
 candidates alongside reviews + verified badge).
+
+---
+
+## Backlog (post-design review)
+
+New findings from docs/DESIGN_REVIEW.md (Task 36), plus carried-forward
+leftovers. No fixes scheduled yet.
+
+| ID  | Sev | Finding                                                                                  | Notes                                                                    | Status                   |
+| --- | --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------ |
+| F18 | S3  | No singular pluralization — "1 seats" / "1 posti" (BookingCard, requests inbox)          | An `n === 1` key variant in both dictionaries would fix it               | OPEN                     |
+| F19 | S3  | "Not paid yet" shown next to the Cancelled badge on cancelled bookings                   | Payment status is noise on a cancelled card — hide it for cancelled      | OPEN                     |
+| F20 | S3  | `/bookings/success` fallback state is a bare paragraph, not card-styled                  | Only reachable without a Stripe `session_id`                             | OPEN                     |
+| —   | —   | `client/.env.example` suggests the dead `nonnas-kitchen-api.onrender.com` URL            | Live API is `nonnas-kitchen.onrender.com`; carried from FIX_ROUND_REVIEW | OPEN                     |
+| —   | —   | Booking `STATUS_BADGE` map duplicated identically in BookingCard and HostBookingRequests | Dedup into a shared constant next time these files are touched           | OPEN                     |
+| F21 | —   | Local `server/.env` pointed `MONGODB_URI` at the prod DB (dev + smoke mutated prod)      | `server/.env` now points at a separate `nonnas-kitchen-dev` database     | ✅ RESOLVED (2026-07-19) |
