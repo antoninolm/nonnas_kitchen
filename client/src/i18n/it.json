@@ -117,6 +117,7 @@
   "dashboard.profiles.status.published": "Pubblicata",
   "dashboard.profiles.status.completed": "Completata",
   "dashboard.profiles.status.cancelled": "Annullata",
+  "bookingsSuccess.title": "Pagamento",
   "bookingsSuccess.loginRequired": "Accedi per confermare il pagamento.",
   "bookingsSuccess.success": "Pagamento confermato! La tua prenotazione è ora pagata.",
   "bookingsSuccess.error": "Non siamo riusciti a confermare il pagamento. Controlla la tua dashboard.",
