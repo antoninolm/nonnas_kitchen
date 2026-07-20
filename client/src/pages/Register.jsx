@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
 import { apiErrorKey } from "../utils/apiError";
+import AuthHeader from "../components/AuthHeader.jsx";
 
 function Register() {
   const { register } = useAuth();
@@ -41,10 +42,10 @@ function Register() {
 
   return (
     <section className="mx-auto w-full max-w-sm px-4 py-section-y">
-      <h1 className="mt-0 mb-1 text-center">{t("auth.register.title")}</h1>
-      <p className="mb-6 text-center text-text-secondary">
-        {t("auth.register.subtitle")}
-      </p>
+      <AuthHeader
+        titleKey="auth.register.title"
+        subtitleKey="auth.register.subtitle"
+      />
       <div className="rounded-card border border-dashed border-border bg-surface p-card shadow-card">
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <label className="form-label">
