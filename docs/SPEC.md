@@ -54,7 +54,7 @@ MethodRouteProtectionNotesGET/experiences—query params: city, tag, from (date)
 
 Host management (middleware: JWT + user ∈ managers)
 
-MethodRouteProtectionNotesPOST/hostsJWTcreator becomes first managerGET/hosts/mineJWThost profiles managed by the current userPATCH/hosts/:idmanagerPOST/experiencesmanagerhost must be managed by the userPATCH/experiences/:idmanagerDELETE/experiences/:idmanageronly if status=draft, otherwise → cancelledGET/hosts/:id/bookingsmanagerreceived bookingsGET/hosts/:id/experiencesmanagerall statuses, including drafts (every public GET filters status=published, so managers had no way to list their own drafts/cancelled experiences); includes address (the edit form needs it). Added in Task 26.
+MethodRouteProtectionNotesPOST/hostsJWTcreator becomes first managerGET/hosts/mineJWThost profiles managed by the current userPATCH/hosts/:idmanagerPOST/experiencesmanagerhost must be managed by the userPATCH/experiences/:idmanagerDELETE/experiences/:idmanageronly if status=draft, otherwise → cancelledGET/hosts/:id/bookingsmanagerreceived bookings; guest populated with name + avatar only (the requests inbox shows the requester's avatar — Task 39)GET/hosts/:id/experiencesmanagerall statuses, including drafts (every public GET filters status=published, so managers had no way to list their own drafts/cancelled experiences); includes address (the edit form needs it). Added in Task 26.
 
 Booking (middleware: JWT)
 
@@ -88,7 +88,7 @@ Errors: JSON { error: string } with proper status codes (400/401/403/404/409)
 
 4. Client — pages (React Router 7)
 
-RouteProtectedContent/—Landing + featured experiences/experiences—List with city/tag/date filters (synced with query params)/experiences/:id—Detail + book CTA (if not logged in → redirect to login)/hosts/:id—Nonna's public page: bio, story, reviews, badge/login, /register—/dashboard✅Tabbed double view: "My bookings" (guest) / "My profiles" (manager)/hosts/new✅"Bring your nonna online" wizard/hosts/:id/experiences/new✅Add an experience to one of my host profiles (reached from the dashboard's "My profiles" tab)/profile✅Personal profile: avatar, name, email (read-only) + edit form for name, avatar URL, interests (reached from the navbar greeting). Added in Task 37
+RouteProtectedContent/—Landing + featured experiences/experiences—List with city/tag/date filters (synced with query params)/experiences/:id—Detail + book CTA (if not logged in → redirect to login)/hosts/:id—Nonna's public page: bio, story, reviews, badge/login, /register—/dashboard✅Tabbed double view: "My bookings" (only bookings made as guest) / "My profiles" (hub: personal-profile card + managed nonna cards linking to their manage pages). Restructured in Task 39, supersedes the Task 35 layout/dashboard/hosts/:id✅Manage one nonna: her header, her experiences (all statuses), her received booking-requests inbox with requester avatars, add experience — moved here from the "My profiles" tab (Task 39). Manager-only: non-managers see a not-found state, and the underlying API calls are 403 anyway/hosts/new✅"Bring your nonna online" wizard/hosts/:id/experiences/new✅Add an experience to one of my host profiles (reached from /dashboard/hosts/:id, which is also the post-submit redirect target — Task 39)/profile✅Personal profile: avatar, name, email (read-only) + edit form for name, avatar URL, interests (reached from the navbar greeting). Added in Task 37
 
 State & patterns
 

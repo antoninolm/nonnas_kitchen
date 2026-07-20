@@ -3,6 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import { formatDate } from "../utils/format";
+import Avatar from "./Avatar.jsx";
 
 const STATUS_BADGE = {
   pending: "bg-accent-soft text-accent",
@@ -62,53 +63,60 @@ function HostBookingRequests({ hostId, onChange = () => {} }) {
           {bookings.map((booking) => (
             <li
               key={booking._id}
-              className="flex flex-col gap-1 rounded-card border border-dashed border-border p-3"
+              className="flex gap-3 rounded-card border border-dashed border-border p-3"
             >
-              <p className="font-semibold">{booking.guest.name}</p>
-              <p className="text-sm text-text-secondary">
-                {booking.experience.title} ·{" "}
-                {formatDate(booking.experience.date, lang)} · {booking.seats}{" "}
-                {t(
-                  booking.seats === 1
-                    ? "dashboard.bookings.seatsCount.one"
-                    : "dashboard.bookings.seatsCount.other",
+              <Avatar
+                src={booking.guest.avatar}
+                name={booking.guest.name}
+                size="sm"
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <p className="font-semibold">{booking.guest.name}</p>
+                <p className="text-sm text-text-secondary">
+                  {booking.experience.title} ·{" "}
+                  {formatDate(booking.experience.date, lang)} · {booking.seats}{" "}
+                  {t(
+                    booking.seats === 1
+                      ? "dashboard.bookings.seatsCount.one"
+                      : "dashboard.bookings.seatsCount.other",
+                  )}
+                </p>
+                <p className="mt-1 flex flex-wrap items-center gap-2">
+                  <span
+                    className={`rounded-pill px-3 py-1 text-sm font-medium ${STATUS_BADGE[booking.status]}`}
+                  >
+                    {t(`dashboard.bookings.status.${booking.status}`)}
+                  </span>
+                  {booking.status !== "cancelled" &&
+                    (booking.paid ? (
+                      <span className="text-sm font-medium text-success">
+                        {t("dashboard.bookings.paid")}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-text-secondary">
+                        {t("dashboard.bookings.unpaid")}
+                      </span>
+                    ))}
+                </p>
+                {booking.status === "pending" && (
+                  <span className="mt-2 flex gap-3">
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() => handleDecision(booking._id, "confirmed")}
+                    >
+                      {t("dashboard.profiles.accept")}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => handleDecision(booking._id, "cancelled")}
+                    >
+                      {t("dashboard.profiles.decline")}
+                    </button>
+                  </span>
                 )}
-              </p>
-              <p className="mt-1 flex flex-wrap items-center gap-2">
-                <span
-                  className={`rounded-pill px-3 py-1 text-sm font-medium ${STATUS_BADGE[booking.status]}`}
-                >
-                  {t(`dashboard.bookings.status.${booking.status}`)}
-                </span>
-                {booking.status !== "cancelled" &&
-                  (booking.paid ? (
-                    <span className="text-sm font-medium text-success">
-                      {t("dashboard.bookings.paid")}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-text-secondary">
-                      {t("dashboard.bookings.unpaid")}
-                    </span>
-                  ))}
-              </p>
-              {booking.status === "pending" && (
-                <span className="mt-2 flex gap-3">
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    onClick={() => handleDecision(booking._id, "confirmed")}
-                  >
-                    {t("dashboard.profiles.accept")}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => handleDecision(booking._id, "cancelled")}
-                  >
-                    {t("dashboard.profiles.decline")}
-                  </button>
-                </span>
-              )}
+              </div>
             </li>
           ))}
         </ul>

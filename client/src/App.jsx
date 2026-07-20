@@ -11,6 +11,7 @@ import HostNew from "./pages/HostNew.jsx";
 import HostExperienceNew from "./pages/HostExperienceNew.jsx";
 import HostExperienceEdit from "./pages/HostExperienceEdit.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import HostManage from "./pages/HostManage.jsx";
 import Profile from "./pages/Profile.jsx";
 import BookingsSuccess from "./pages/BookingsSuccess.jsx";
 
@@ -54,6 +55,14 @@ function App() {
           element={
             <RequireAuth>
               <Dashboard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/dashboard/hosts/:id"
+          element={
+            <RequireAuth>
+              <HostManage />
             </RequireAuth>
           }
         />

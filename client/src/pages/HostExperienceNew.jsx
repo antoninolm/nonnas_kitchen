@@ -37,7 +37,7 @@ function HostExperienceNew() {
         method: "PATCH",
         body: JSON.stringify({ status: "published" }),
       });
-      navigate(`/hosts/${id}`);
+      navigate(`/dashboard/hosts/${id}`);
     } catch (err) {
       setError(
         t(

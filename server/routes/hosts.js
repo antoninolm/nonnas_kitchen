@@ -80,7 +80,7 @@ router.get(
       const bookings = await Booking.find({
         experience: { $in: experiences.map((e) => e._id) },
       })
-        .populate({ path: "guest", select: "name" })
+        .populate({ path: "guest", select: "name avatar" })
         .populate({ path: "experience", select: "title date" });
       res.json(bookings);
     } catch (err) {

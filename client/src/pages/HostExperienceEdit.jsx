@@ -46,7 +46,7 @@ function HostExperienceEdit() {
         method: "PATCH",
         body: JSON.stringify(buildExperienceUpdatePayload(values)),
       });
-      navigate(`/hosts/${id}`);
+      navigate(`/dashboard/hosts/${id}`);
     } catch (err) {
       setError(
         t(

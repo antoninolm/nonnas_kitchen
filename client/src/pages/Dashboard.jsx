@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import BookingCard from "../components/BookingCard.jsx";
-import HostBookingRequests from "../components/HostBookingRequests.jsx";
-import HostExperienceList from "../components/HostExperienceList.jsx";
+import Avatar from "../components/Avatar.jsx";
+import VerifiedBadge from "../components/VerifiedBadge.jsx";
 
 function Dashboard() {
+  const { user } = useAuth();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("bookings");
-  const [experiencesRefreshKey, setExperiencesRefreshKey] = useState(0);
 
   const {
     data: bookings,
@@ -90,6 +91,19 @@ function Dashboard() {
 
       {activeTab === "profiles" && (
         <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+            <Avatar src={user.avatar} name={user.name} size="lg" />
+            <div className="min-w-0">
+              <p className="m-0 text-sm text-text-secondary">
+                {t("dashboard.profiles.personalTitle")}
+              </p>
+              <p className="m-0 font-semibold text-text-primary">{user.name}</p>
+              <Link to="/profile" className="text-sm text-accent underline">
+                {t("dashboard.profiles.personalLink")}
+              </Link>
+            </div>
+          </div>
+
           {profilesLoading && (
             <p className="text-text-secondary">{t("common.loading")}</p>
           )}
@@ -110,32 +124,30 @@ function Dashboard() {
             <>
               <ul className="flex flex-col gap-gap">
                 {profiles.map((host) => (
-                  <li
-                    key={host._id}
-                    className="rounded-card border border-dashed border-border bg-surface p-card shadow-card"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <Link
-                        to={`/hosts/${host._id}`}
-                        className="text-lg font-semibold text-text-primary hover:text-accent"
-                      >
-                        {host.displayName} — {host.city}
-                      </Link>
-                      <Link
-                        to={`/hosts/${host._id}/experiences/new`}
-                        className="btn-secondary"
-                      >
-                        {t("dashboard.profiles.addExperience")}
-                      </Link>
-                    </div>
-                    <HostExperienceList
-                      key={`${host._id}-${experiencesRefreshKey}`}
-                      hostId={host._id}
-                    />
-                    <HostBookingRequests
-                      hostId={host._id}
-                      onChange={() => setExperiencesRefreshKey((k) => k + 1)}
-                    />
+                  <li key={host._id}>
+                    <Link
+                      to={`/dashboard/hosts/${host._id}`}
+                      className="flex items-center gap-3 rounded-card border border-dashed border-border bg-surface p-card no-underline shadow-card transition-transform duration-150 hover:-translate-y-0.5"
+                    >
+                      <Avatar
+                        src={host.photos?.[0]}
+                        name={host.displayName}
+                        size="lg"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="m-0 flex flex-wrap items-center gap-2 font-semibold text-text-primary">
+                          {host.displayName}
+                          {host.verified && <VerifiedBadge />}
+                        </p>
+                        <p className="m-0 text-sm text-text-secondary">
+                          {host.city}
+                          {host.neighborhood && ` — ${host.neighborhood}`}
+                        </p>
+                      </div>
+                      <span className="text-sm font-medium text-accent">
+                        {t("dashboard.profiles.manage")} →
+                      </span>
+                    </Link>
                   </li>
                 ))}
               </ul>

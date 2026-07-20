@@ -7,6 +7,7 @@ import {
   buildProfilePayload,
 } from "../utils/profilePayload";
 import { apiErrorKey } from "../utils/apiError";
+import Avatar from "../components/Avatar.jsx";
 
 function Profile() {
   const { user, authFetchJSON, updateUser } = useAuth();
@@ -73,20 +74,7 @@ function Profile() {
       <h1 className="mt-0 mb-4">{t("profile.title")}</h1>
 
       <div className="mb-4 flex items-center gap-3 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
-        {user.avatar ? (
-          <img
-            src={user.avatar}
-            alt=""
-            className="h-16 w-16 shrink-0 rounded-full border border-dashed border-border object-cover"
-          />
-        ) : (
-          <div
-            aria-hidden="true"
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-dashed border-border bg-accent-soft text-2xl font-semibold text-accent"
-          >
-            {user.name?.charAt(0)?.toUpperCase()}
-          </div>
-        )}
+        <Avatar src={user.avatar} name={user.name} size="lg" />
         <div className="min-w-0">
           <p className="m-0 font-semibold text-text-primary">{user.name}</p>
           <p className="m-0 truncate text-sm text-text-secondary">

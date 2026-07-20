@@ -94,6 +94,21 @@ async function main() {
   );
   const bookingId = booking.json._id;
 
+  // 2b. Manager inbox: guest populated with name + avatar, never email (Task 39)
+  const hostBookings = await request("GET", `/api/v1/hosts/${hostId}/bookings`, {
+    token: managerToken,
+  });
+  const inboxGuest = hostBookings.json?.find((b) => b._id === bookingId)?.guest;
+  check(
+    "host bookings expose guest name + avatar, never email",
+    hostBookings.status === 200 &&
+      typeof inboxGuest?.name === "string" &&
+      typeof inboxGuest?.avatar === "string" &&
+      inboxGuest.avatar.length > 0 &&
+      !hostBookings.text.includes("guest@demo.com"),
+    `status ${hostBookings.status} (expected 200), guest ${JSON.stringify(inboxGuest)}`,
+  );
+
   // 3. Duplicate booking -> 409
   const duplicate = await request("POST", "/api/v1/bookings", {
     token: guestToken,
