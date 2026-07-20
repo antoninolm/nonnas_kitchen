@@ -112,6 +112,54 @@ visible; a pure guest sees personal profile card + F2 empty invitation;
 works on the new route in production; EN/IT parity; smoke passes.
 ```
 
+## Task 39b — Received requests move to "Le mie prenotazioni" (single view)
+
+```
+Read CLAUDE.md and docs/SPEC.md (§4 dashboard structure from Task 39).
+This AMENDS Task 39's IA by user decision: received requests live ONLY
+in an aggregated "Ricevute" sub-tab under "Le mie prenotazioni". The
+per-nonna inbox on /dashboard/hosts/:id is REMOVED.
+
+Server:
+- New route GET /api/v1/bookings/received (requireAuth): all bookings on
+  experiences whose host lists me as manager, any status, populated with
+  experience (title, date), host (displayName, photo), guest (name,
+  avatar). Sorted newest first. Mirror the security/populate discipline
+  of GET /hosts/:id/bookings (no email/password leaks). Record in SPEC
+  §3. Keep GET /hosts/:id/bookings and its smoke checks (API stays —
+  only the UI stops using it; note this in SPEC).
+- Extend the smoke suite: /bookings/received — manager gets seeded
+  requests across both nonnas, guest with no managed hosts gets [],
+  unauthenticated 401.
+
+Client:
+- /dashboard "Le mie prenotazioni" gets two sub-tabs (secondary tab
+  style): "Fatte" (default; current BookingCard list, unchanged) and
+  "Ricevute".
+- "Ricevute": cards reusing the request-card idiom from
+  HostBookingRequests — requester avatar/name, experience title, date,
+  seats, status badge, and the nonna it belongs to (photo/name, linking
+  to /dashboard/hosts/:id). Accept/Decline on pending ones, same
+  handlers/refresh discipline as before.
+- /dashboard/hosts/:id: REMOVE the requests inbox section (the
+  HostBookingRequests usage there). The page keeps: nonna header, her
+  experiences list, "Add experience". If HostBookingRequests becomes
+  fully reusable as the Ricevute card base, adapt/move it rather than
+  duplicating.
+- Update SPEC §4 with the final structure. Empty states styled; all
+  strings via t(), both dictionaries; remove any now-unused keys ONLY if
+  unused everywhere (parity maintained).
+
+Do NOT change the booking state machine or the made-bookings flow.
+
+Acceptance criteria: as manager@demo.com, "Ricevute" shows requests
+across Carmela AND Assunta, each labeled with its nonna, and I can
+accept/decline from there; the nonna page no longer shows an inbox but
+still manages her experiences; as a pure guest "Ricevute" shows a styled
+empty state; "Fatte" unchanged; deep links survive refresh; EN/IT
+parity; smoke passes with the new checks.
+```
+
 ## Task 40 — Personalized featured (request #2)
 
 ```

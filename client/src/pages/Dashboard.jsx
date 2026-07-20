@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import BookingCard from "../components/BookingCard.jsx";
+import ReceivedBookingCard from "../components/ReceivedBookingCard.jsx";
 import Avatar from "../components/Avatar.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 
@@ -11,6 +12,7 @@ function Dashboard() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("bookings");
+  const [bookingsSubTab, setBookingsSubTab] = useState("made");
 
   const {
     data: bookings,
@@ -18,6 +20,13 @@ function Dashboard() {
     error: bookingsError,
     refetch: refetchBookings,
   } = useAuthFetch("/api/v1/bookings/me");
+
+  const {
+    data: received,
+    loading: receivedLoading,
+    error: receivedError,
+    refetch: refetchReceived,
+  } = useAuthFetch("/api/v1/bookings/received");
 
   const {
     data: profiles,
@@ -30,6 +39,13 @@ function Dashboard() {
       activeTab === tab
         ? "border-border border-b-0 bg-surface text-accent"
         : "border-transparent bg-transparent text-text-secondary hover:text-accent"
+    }`;
+
+  const subTabClass = (tab) =>
+    `cursor-pointer rounded-pill border border-dashed px-3 py-1 text-sm font-medium ${
+      bookingsSubTab === tab
+        ? "border-accent bg-accent-soft text-accent"
+        : "border-border bg-transparent text-text-secondary hover:text-accent"
     }`;
 
   return (
@@ -62,29 +78,83 @@ function Dashboard() {
 
       {activeTab === "bookings" && (
         <div className="flex flex-col gap-3">
-          {bookingsLoading && (
-            <p className="text-text-secondary">{t("common.loading")}</p>
+          <div role="tablist" className="flex gap-2">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={bookingsSubTab === "made"}
+              onClick={() => setBookingsSubTab("made")}
+              className={subTabClass("made")}
+            >
+              {t("dashboard.bookings.tabs.made")}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={bookingsSubTab === "received"}
+              onClick={() => setBookingsSubTab("received")}
+              className={subTabClass("received")}
+            >
+              {t("dashboard.bookings.tabs.received")}
+            </button>
+          </div>
+
+          {bookingsSubTab === "made" && (
+            <div className="flex flex-col gap-3">
+              {bookingsLoading && (
+                <p className="text-text-secondary">{t("common.loading")}</p>
+              )}
+              {bookingsError && (
+                <p role="alert" className="font-medium text-accent">
+                  {t("common.error")}
+                </p>
+              )}
+              {!bookingsLoading && !bookingsError && bookings?.length === 0 && (
+                <p className="text-text-secondary">
+                  {t("dashboard.bookings.empty")}
+                </p>
+              )}
+              {!bookingsLoading && !bookingsError && bookings?.length > 0 && (
+                <ul className="flex flex-col gap-3">
+                  {bookings.map((booking) => (
+                    <BookingCard
+                      key={booking._id}
+                      booking={booking}
+                      onChange={refetchBookings}
+                    />
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
-          {bookingsError && (
-            <p role="alert" className="font-medium text-accent">
-              {t("common.error")}
-            </p>
-          )}
-          {!bookingsLoading && !bookingsError && bookings?.length === 0 && (
-            <p className="text-text-secondary">
-              {t("dashboard.bookings.empty")}
-            </p>
-          )}
-          {!bookingsLoading && !bookingsError && bookings?.length > 0 && (
-            <ul className="flex flex-col gap-3">
-              {bookings.map((booking) => (
-                <BookingCard
-                  key={booking._id}
-                  booking={booking}
-                  onChange={refetchBookings}
-                />
-              ))}
-            </ul>
+
+          {bookingsSubTab === "received" && (
+            <div className="flex flex-col gap-3">
+              {receivedLoading && (
+                <p className="text-text-secondary">{t("common.loading")}</p>
+              )}
+              {receivedError && (
+                <p role="alert" className="font-medium text-accent">
+                  {t("common.error")}
+                </p>
+              )}
+              {!receivedLoading && !receivedError && received?.length === 0 && (
+                <p className="text-text-secondary">
+                  {t("dashboard.profiles.noBookingRequests")}
+                </p>
+              )}
+              {!receivedLoading && !receivedError && received?.length > 0 && (
+                <ul className="flex flex-col gap-3">
+                  {received.map((booking) => (
+                    <ReceivedBookingCard
+                      key={booking._id}
+                      booking={booking}
+                      onChange={refetchReceived}
+                    />
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
         </div>
       )}

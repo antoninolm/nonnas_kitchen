@@ -1,6 +1,7 @@
 import { Router } from "express";
 import Booking from "../models/Booking.js";
 import Experience from "../models/Experience.js";
+import HostProfile from "../models/HostProfile.js";
 import requireAuth from "../middleware/auth.js";
 import { findManagedHost } from "../middleware/requireManager.js";
 
@@ -154,6 +155,34 @@ router.get("/me", requireAuth, async (req, res) => {
       select: "title recipeName date price photos",
       populate: { path: "host", select: "displayName city" },
     });
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// All bookings across every host the current user manages, any status,
+// sorted newest first. Cross-host aggregate (Task 39b) — unlike
+// GET /hosts/:id/bookings this isn't scoped to one host, so it can't use
+// requireHostManager (that middleware is single-host-id scoped via
+// req.params.id).
+router.get("/received", requireAuth, async (req, res) => {
+  try {
+    const hosts = await HostProfile.find({ managers: req.user.id }, "_id");
+    const experiences = await Experience.find(
+      { host: { $in: hosts.map((h) => h._id) } },
+      "_id",
+    );
+    const bookings = await Booking.find({
+      experience: { $in: experiences.map((e) => e._id) },
+    })
+      .sort({ createdAt: -1 })
+      .populate({ path: "guest", select: "name avatar" })
+      .populate({
+        path: "experience",
+        select: "title date",
+        populate: { path: "host", select: "displayName photos" },
+      });
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });

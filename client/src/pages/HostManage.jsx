@@ -1,15 +1,12 @@
-import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { useTranslation } from "../hooks/useTranslation";
 import HostExperienceList from "../components/HostExperienceList.jsx";
-import HostBookingRequests from "../components/HostBookingRequests.jsx";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
 
 function HostManage() {
   const { id } = useParams();
   const { t } = useTranslation();
-  const [refreshKey, setRefreshKey] = useState(0);
 
   // The manager check is by ownership, not by role: this fetch only returns
   // hosts the user manages, so a missing id means "not yours" (or not there).
@@ -76,11 +73,7 @@ function HostManage() {
       </Link>
 
       <div className="mt-4 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
-        <HostExperienceList key={`${id}-${refreshKey}`} hostId={id} />
-        <HostBookingRequests
-          hostId={id}
-          onChange={() => setRefreshKey((k) => k + 1)}
-        />
+        <HostExperienceList hostId={id} />
       </div>
     </section>
   );

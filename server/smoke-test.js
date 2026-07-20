@@ -335,6 +335,44 @@ async function main() {
     );
   }
 
+  // 20b. GET /bookings/received: manager sees requests spanning BOTH managed
+  // hosts (Carmela + Assunta), any status, guest populated with name+avatar
+  // only, never email. bookingId/B/C/D between them already touch both hosts.
+  const received = await request("GET", "/api/v1/bookings/received", {
+    token: managerToken,
+  });
+  const receivedHostIds = new Set(
+    (received.json ?? []).map((b) => b.experience?.host?._id),
+  );
+  check(
+    "GET /bookings/received spans both managed hosts, never leaks guest email",
+    received.status === 200 &&
+      receivedHostIds.has(hosts.json[0]._id) &&
+      receivedHostIds.has(hosts.json[1]._id) &&
+      !received.text.includes("guest@demo.com"),
+    `status ${received.status} (expected 200), host ids seen: ${[...receivedHostIds].join(", ")}`,
+  );
+
+  // 20c. A user managing no hosts (guest@demo.com) -> 200 with []
+  const receivedAsGuest = await request("GET", "/api/v1/bookings/received", {
+    token: guestToken,
+  });
+  check(
+    "GET /bookings/received returns [] for a user managing no hosts",
+    receivedAsGuest.status === 200 &&
+      Array.isArray(receivedAsGuest.json) &&
+      receivedAsGuest.json.length === 0,
+    `status ${receivedAsGuest.status} (expected 200), body ${receivedAsGuest.text}`,
+  );
+
+  // 20d. Unauthenticated -> 401
+  const receivedNoAuth = await request("GET", "/api/v1/bookings/received");
+  check(
+    "GET /bookings/received requires authentication",
+    receivedNoAuth.status === 401,
+    `status ${receivedNoAuth.status} (expected 401)`,
+  );
+
   // 21. GET /users/me -> 200 with the guest's email, never the password
   const me = await request("GET", "/api/v1/users/me", { token: guestToken });
   check(
