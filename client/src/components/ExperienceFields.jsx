@@ -91,6 +91,51 @@ function ExperienceFields({ values, onChange }) {
         />
       </label>
       <label className="form-label">
+        {t("experienceFields.dietaryOptions")}
+        <input
+          type="text"
+          className="field"
+          value={values.dietaryOptions}
+          onChange={set("dietaryOptions")}
+        />
+      </label>
+      <label className="form-label">
+        {t("experienceFields.menu")}
+        <input
+          type="text"
+          className="field"
+          value={values.menu}
+          onChange={set("menu")}
+        />
+      </label>
+      <label className="form-label">
+        {t("experienceFields.languagesSpoken")}
+        <input
+          type="text"
+          className="field"
+          value={values.languagesSpoken}
+          onChange={set("languagesSpoken")}
+        />
+      </label>
+      <label className="form-label">
+        {t("experienceFields.conversationTopics")}
+        <input
+          type="text"
+          className="field"
+          value={values.conversationTopics}
+          onChange={set("conversationTopics")}
+        />
+      </label>
+      <label className="form-label">
+        {t("experienceFields.houseRules")}
+        <textarea
+          className="field min-h-24"
+          maxLength={500}
+          value={values.houseRules}
+          onChange={set("houseRules")}
+        />
+      </label>
+      <label className="form-label">
         {t("experienceFields.durationMin")}
         <input
           type="number"

@@ -13,6 +13,7 @@ import HostExperienceEdit from "./pages/HostExperienceEdit.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import HostManage from "./pages/HostManage.jsx";
 import Profile from "./pages/Profile.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
 import BookingsSuccess from "./pages/BookingsSuccess.jsx";
 
 function App() {
@@ -71,6 +72,14 @@ function App() {
           element={
             <RequireAuth>
               <Profile />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <RequireAuth>
+              <UserProfile />
             </RequireAuth>
           }
         />

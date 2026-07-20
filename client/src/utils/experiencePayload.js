@@ -7,9 +7,23 @@ export const emptyExperienceValues = {
   address: "",
   story: "",
   tags: "",
+  dietaryOptions: "",
+  menu: "",
+  languagesSpoken: "",
+  conversationTopics: "",
+  houseRules: "",
   durationMin: "",
   photo: "",
 };
+
+function splitList(value) {
+  return value
+    ? value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
+}
 
 export function buildExperiencePayload(values, hostId) {
   return {
@@ -23,12 +37,12 @@ export function buildExperiencePayload(values, hostId) {
     story: values.story || undefined,
     durationMin: values.durationMin ? Number(values.durationMin) : undefined,
     photos: values.photo ? [values.photo] : [],
-    tags: values.tags
-      ? values.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean)
-      : [],
+    tags: splitList(values.tags),
+    dietaryOptions: splitList(values.dietaryOptions),
+    menu: splitList(values.menu),
+    languagesSpoken: splitList(values.languagesSpoken),
+    conversationTopics: splitList(values.conversationTopics),
+    houseRules: values.houseRules || undefined,
   };
 }
 
@@ -42,6 +56,11 @@ export function toExperienceFormValues(experience) {
     address: experience.address ?? "",
     story: experience.story ?? "",
     tags: experience.tags?.join(", ") ?? "",
+    dietaryOptions: experience.dietaryOptions?.join(", ") ?? "",
+    menu: experience.menu?.join(", ") ?? "",
+    languagesSpoken: experience.languagesSpoken?.join(", ") ?? "",
+    conversationTopics: experience.conversationTopics?.join(", ") ?? "",
+    houseRules: experience.houseRules ?? "",
     durationMin: experience.durationMin
       ? experience.durationMin.toString()
       : "",
@@ -60,11 +79,11 @@ export function buildExperienceUpdatePayload(values) {
     story: values.story || undefined,
     durationMin: values.durationMin ? Number(values.durationMin) : undefined,
     photos: values.photo ? [values.photo] : [],
-    tags: values.tags
-      ? values.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean)
-      : [],
+    tags: splitList(values.tags),
+    dietaryOptions: splitList(values.dietaryOptions),
+    menu: splitList(values.menu),
+    languagesSpoken: splitList(values.languagesSpoken),
+    conversationTopics: splitList(values.conversationTopics),
+    houseRules: values.houseRules || undefined,
   };
 }

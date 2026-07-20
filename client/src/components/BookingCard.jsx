@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
 import { formatDate, formatPrice } from "../utils/format";
+import ReviewForm from "./ReviewForm.jsx";
 
 const STATUS_BADGE = {
   pending: "bg-accent-soft text-accent",
@@ -146,6 +147,9 @@ function BookingCard({ booking, onChange }) {
           >
             {t("dashboard.bookings.cancel")}
           </button>
+        )}
+        {booking.reviewable && (
+          <ReviewForm bookingId={booking._id} onSubmitted={onChange} />
         )}
       </div>
 

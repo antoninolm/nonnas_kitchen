@@ -6,6 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 import { formatDate, formatPrice } from "../utils/format";
 import { apiErrorKey } from "../utils/apiError";
 import VerifiedBadge from "../components/VerifiedBadge.jsx";
+import RatingBadge from "../components/RatingBadge.jsx";
 
 function ExperienceDetail() {
   const { id } = useParams();
@@ -102,6 +103,10 @@ function ExperienceDetail() {
           </Link>
           — {experience.host.city}
           {experience.host.verified && <VerifiedBadge />}
+          <RatingBadge
+            avg={experience.host.ratingAvg}
+            count={experience.host.ratingCount}
+          />
         </p>
       )}
 
@@ -118,10 +123,81 @@ function ExperienceDetail() {
         </div>
       )}
 
+      {experience.dietaryOptions?.length > 0 && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("experiences.detail.dietaryOptions")}
+          </p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {experience.dietaryOptions.map((option) => (
+              <span
+                key={option}
+                className="rounded-pill bg-accent-soft px-3 py-1 text-sm text-accent"
+              >
+                {option}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {experience.languagesSpoken?.length > 0 && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-text-secondary">
+            {t("experiences.detail.languagesSpoken")}
+          </p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {experience.languagesSpoken.map((language) => (
+              <span
+                key={language}
+                className="rounded-pill bg-accent-soft px-3 py-1 text-sm text-accent"
+              >
+                {language}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {experience.story && (
         <p className="mt-5 leading-relaxed whitespace-pre-line">
           {experience.story}
         </p>
+      )}
+
+      {experience.menu?.length > 0 && (
+        <div className="mt-5">
+          <p className="font-semibold text-text-primary">
+            {t("experiences.detail.menu")}
+          </p>
+          <ul className="mt-1 list-disc pl-5 leading-relaxed">
+            {experience.menu.map((dish) => (
+              <li key={dish}>{dish}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {experience.conversationTopics?.length > 0 && (
+        <div className="mt-5 rounded-card bg-accent-soft p-card">
+          <p className="font-semibold text-accent">
+            {t("experiences.detail.conversationTopics")}
+          </p>
+          <p className="mt-1 leading-relaxed">
+            {experience.conversationTopics.join(", ")}
+          </p>
+        </div>
+      )}
+
+      {experience.houseRules && (
+        <div className="mt-5 rounded-card border border-dashed border-border bg-surface p-card shadow-card">
+          <p className="font-semibold text-text-primary">
+            {t("experiences.detail.houseRules")}
+          </p>
+          <p className="mt-1 leading-relaxed whitespace-pre-line">
+            {experience.houseRules}
+          </p>
+        </div>
       )}
 
       <div className="mt-6 rounded-card border border-dashed border-border bg-surface p-card shadow-card">

@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema(
       maxPrice: { type: Number, min: 0 },
       tags: [String],
     },
+    ratingAvg: { type: Number, default: 0 },
+    ratingCount: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "../hooks/useTranslation";
 import { formatDate, formatPrice } from "../utils/format";
+import RatingBadge from "./RatingBadge.jsx";
 
 function ExperienceCard({ experience }) {
   const { lang, t } = useTranslation();
@@ -27,14 +28,20 @@ function ExperienceCard({ experience }) {
       </Link>
       <div className="flex flex-1 flex-col gap-1 p-card">
         {experience.host && (
-          <p className="text-sm text-text-secondary">
-            <Link
-              to={`/hosts/${experience.host._id}`}
-              className="text-accent no-underline hover:underline"
-            >
-              {experience.host.displayName}
-            </Link>{" "}
-            — {experience.host.city}
+          <p className="flex flex-wrap items-center gap-2 text-sm text-text-secondary">
+            <span>
+              <Link
+                to={`/hosts/${experience.host._id}`}
+                className="text-accent no-underline hover:underline"
+              >
+                {experience.host.displayName}
+              </Link>{" "}
+              — {experience.host.city}
+            </span>
+            <RatingBadge
+              avg={experience.host.ratingAvg}
+              count={experience.host.ratingCount}
+            />
           </p>
         )}
         <p className="text-sm text-text-secondary">

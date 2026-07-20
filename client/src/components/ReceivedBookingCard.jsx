@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
 import { formatDate } from "../utils/format";
 import Avatar from "./Avatar.jsx";
+import ReviewForm from "./ReviewForm.jsx";
 
 const STATUS_BADGE = {
   pending: "bg-accent-soft text-accent",
@@ -35,9 +36,20 @@ function ReceivedBookingCard({ booking, onChange }) {
 
   return (
     <li className="flex gap-3 rounded-card border border-dashed border-border p-3">
-      <Avatar src={booking.guest.avatar} name={booking.guest.name} size="sm" />
+      <Link to={`/users/${booking.guest._id}`} className="shrink-0">
+        <Avatar
+          src={booking.guest.avatar}
+          name={booking.guest.name}
+          size="sm"
+        />
+      </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="font-semibold">{booking.guest.name}</p>
+        <Link
+          to={`/users/${booking.guest._id}`}
+          className="w-fit font-semibold no-underline hover:text-accent"
+        >
+          {booking.guest.name}
+        </Link>
         <p className="text-sm text-text-secondary">
           {booking.experience.title} ·{" "}
           {formatDate(booking.experience.date, lang)} · {booking.seats}{" "}
@@ -108,6 +120,11 @@ function ReceivedBookingCard({ booking, onChange }) {
               {t("dashboard.profiles.decline")}
             </button>
           </span>
+        )}
+        {booking.reviewable && (
+          <div className="mt-2">
+            <ReviewForm bookingId={booking._id} onSubmitted={onChange} />
+          </div>
         )}
       </div>
     </li>

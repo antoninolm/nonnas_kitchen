@@ -23,6 +23,11 @@ router.post("/", requireAuth, async (req, res) => {
     durationMin,
     photos,
     tags,
+    dietaryOptions,
+    menu,
+    languagesSpoken,
+    conversationTopics,
+    houseRules,
   } = req.body;
 
   if (
@@ -64,6 +69,11 @@ router.post("/", requireAuth, async (req, res) => {
       durationMin,
       photos,
       tags,
+      dietaryOptions,
+      menu,
+      languagesSpoken,
+      conversationTopics,
+      houseRules,
     });
     res.status(201).json(experience);
   } catch (err) {
@@ -99,6 +109,11 @@ router.patch("/:id", requireAuth, async (req, res) => {
       address,
       photos,
       tags,
+      dietaryOptions,
+      menu,
+      languagesSpoken,
+      conversationTopics,
+      houseRules,
       status,
     } = req.body;
 
@@ -112,6 +127,11 @@ router.patch("/:id", requireAuth, async (req, res) => {
     if (address !== undefined) experience.address = address;
     if (photos !== undefined) experience.photos = photos;
     if (tags !== undefined) experience.tags = tags;
+    if (dietaryOptions !== undefined) experience.dietaryOptions = dietaryOptions;
+    if (menu !== undefined) experience.menu = menu;
+    if (languagesSpoken !== undefined) experience.languagesSpoken = languagesSpoken;
+    if (conversationTopics !== undefined) experience.conversationTopics = conversationTopics;
+    if (houseRules !== undefined) experience.houseRules = houseRules;
     if (status !== undefined) experience.status = status;
 
     await experience.save();
@@ -190,7 +210,21 @@ router.get("/", async (req, res) => {
 
     const experiences = await Experience.find(filter)
       .sort({ date: 1 })
-      .populate("host", "displayName city verified photos");
+      .populate(
+        "host",
+        "displayName city verified photos ratingAvg ratingCount",
+      );
+
+    // Ranking prioritization: rated hosts first (highest average first,
+    // ties broken by review count), unrated hosts (ratingAvg default 0)
+    // always last, then soonest date within each group.
+    experiences.sort(
+      (a, b) =>
+        b.host.ratingAvg - a.host.ratingAvg ||
+        b.host.ratingCount - a.host.ratingCount ||
+        a.date - b.date,
+    );
+
     res.json(experiences);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
@@ -202,7 +236,10 @@ router.get("/:id", async (req, res) => {
     const experience = await Experience.findOne({
       _id: req.params.id,
       status: "published",
-    }).populate("host", "displayName city verified photos");
+    }).populate(
+      "host",
+      "displayName city verified photos ratingAvg ratingCount",
+    );
 
     if (!experience) {
       return res.status(404).json({ error: "Experience not found" });

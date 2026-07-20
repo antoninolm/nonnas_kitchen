@@ -2,6 +2,7 @@ import { Router } from "express";
 import HostProfile from "../models/HostProfile.js";
 import Experience from "../models/Experience.js";
 import Booking from "../models/Booking.js";
+import Review from "../models/Review.js";
 import requireAuth from "../middleware/auth.js";
 import { requireHostManager } from "../middleware/requireManager.js";
 
@@ -57,7 +58,10 @@ router.get("/mine", requireAuth, async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    const host = await HostProfile.findById(req.params.id).select("-managers");
+    const host = await HostProfile.findById(req.params.id).populate({
+      path: "managers",
+      select: "name avatar",
+    });
     if (!host) {
       return res.status(404).json({ error: "Host not found" });
     }
@@ -104,5 +108,30 @@ router.get(
     }
   },
 );
+
+router.get("/:id/reviews", async (req, res) => {
+  try {
+    const host = await HostProfile.findById(req.params.id).select(
+      "ratingAvg ratingCount",
+    );
+    if (!host) {
+      return res.status(404).json({ error: "Host not found" });
+    }
+
+    const reviews = await Review.find({
+      targetHost: req.params.id,
+      direction: "guestToHost",
+    })
+      .sort({ createdAt: -1 })
+      .populate({ path: "author", select: "name avatar" });
+
+    res.json({ reviews, avg: host.ratingAvg, count: host.ratingCount });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Host not found" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 export default router;

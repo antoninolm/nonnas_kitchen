@@ -2,6 +2,7 @@ import { Router } from "express";
 import Booking from "../models/Booking.js";
 import Experience from "../models/Experience.js";
 import HostProfile from "../models/HostProfile.js";
+import Review from "../models/Review.js";
 import requireAuth from "../middleware/auth.js";
 import { findManagedHost } from "../middleware/requireManager.js";
 
@@ -148,14 +149,121 @@ router.get("/:id/address", requireAuth, async (req, res) => {
   }
 });
 
+// Guest reviews the host (direction=guestToHost) or a manager of the
+// experience's host reviews the guest (direction=hostToGuest) — inferred
+// from who the requester is relative to the booking, never sent by the
+// client. Eligibility is a recorded SPEC deviation: Booking.status never
+// actually reaches "completed" in this codebase, so a booking is
+// reviewable once it's confirmed, paid, and its experience date is past.
+router.post("/:id/review", requireAuth, async (req, res) => {
+  const { rating, text } = req.body;
+
+  if (typeof rating !== "number" || rating < 0 || rating > 5) {
+    return res
+      .status(400)
+      .json({ error: "rating must be a number between 0 and 5" });
+  }
+  if (text !== undefined && (typeof text !== "string" || text.length > 1000)) {
+    return res
+      .status(400)
+      .json({ error: "text must be at most 1000 characters" });
+  }
+
+  try {
+    const booking = await Booking.findById(req.params.id).populate({
+      path: "experience",
+      select: "host date",
+    });
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    const isGuest = booking.guest.equals(req.user.id);
+    const { isManager } = await findManagedHost(
+      booking.experience.host,
+      req.user.id,
+    );
+    if (!isGuest && !isManager) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const eligible =
+      booking.status === "confirmed" &&
+      booking.paid &&
+      booking.experience.date < new Date();
+    if (!eligible) {
+      return res
+        .status(409)
+        .json({ error: "Booking is not eligible for a review yet" });
+    }
+
+    const direction = isGuest ? "guestToHost" : "hostToGuest";
+    const existing = await Review.findOne({ booking: booking._id, direction });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ error: "You have already reviewed this booking" });
+    }
+
+    const review = await Review.create({
+      booking: booking._id,
+      direction,
+      author: req.user.id,
+      rating,
+      text,
+      ...(direction === "guestToHost"
+        ? { targetHost: booking.experience.host }
+        : { targetUser: booking.guest }),
+    });
+
+    if (direction === "guestToHost") {
+      await Review.recomputeHostRating(booking.experience.host);
+    } else {
+      await Review.recomputeGuestRating(booking.guest);
+    }
+
+    res.status(201).json(review);
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+    if (err.code === 11000) {
+      return res
+        .status(409)
+        .json({ error: "You have already reviewed this booking" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/me", requireAuth, async (req, res) => {
   try {
-    const bookings = await Booking.find({ guest: req.user.id }).populate({
-      path: "experience",
-      select: "title recipeName date price photos",
-      populate: { path: "host", select: "displayName city" },
-    });
-    res.json(bookings);
+    const bookings = await Booking.find({ guest: req.user.id })
+      .populate({
+        path: "experience",
+        select: "title recipeName date price photos",
+        populate: { path: "host", select: "displayName city" },
+      })
+      .lean();
+
+    const reviewed = await Review.find(
+      {
+        booking: { $in: bookings.map((b) => b._id) },
+        direction: "guestToHost",
+      },
+      "booking",
+    ).lean();
+    const reviewedSet = new Set(reviewed.map((r) => String(r.booking)));
+    const now = new Date();
+
+    res.json(
+      bookings.map((b) => ({
+        ...b,
+        reviewable:
+          b.status === "confirmed" &&
+          b.paid &&
+          new Date(b.experience.date) < now &&
+          !reviewedSet.has(String(b._id)),
+      })),
+    );
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -182,8 +290,32 @@ router.get("/received", requireAuth, async (req, res) => {
         path: "experience",
         select: "title date",
         populate: { path: "host", select: "displayName photos" },
-      });
-    res.json(bookings);
+      })
+      .lean();
+
+    // The unique index is { booking, direction } (not per-manager), so if
+    // any manager of a multi-manager host already reviewed the guest, this
+    // is correctly false for every manager, not just the one who wrote it.
+    const reviewed = await Review.find(
+      {
+        booking: { $in: bookings.map((b) => b._id) },
+        direction: "hostToGuest",
+      },
+      "booking",
+    ).lean();
+    const reviewedSet = new Set(reviewed.map((r) => String(r.booking)));
+    const now = new Date();
+
+    res.json(
+      bookings.map((b) => ({
+        ...b,
+        reviewable:
+          b.status === "confirmed" &&
+          b.paid &&
+          new Date(b.experience.date) < now &&
+          !reviewedSet.has(String(b._id)),
+      })),
+    );
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }

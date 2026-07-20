@@ -16,6 +16,8 @@ const hostProfileSchema = new mongoose.Schema(
       },
     },
     verified: { type: Boolean, default: false },
+    ratingAvg: { type: Number, default: 0 },
+    ratingCount: { type: Number, default: 0 },
     completedExperiences: { type: Number, default: 0 },
   },
   { timestamps: true },

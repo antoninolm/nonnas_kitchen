@@ -417,6 +417,179 @@ async function main() {
     `status ${meNoAuth.status} (expected 401)`,
   );
 
+  // --- Reviews + ranking (Task 41) ---
+  // Reuses seed.js's pre-seeded past+confirmed+paid bookings (carmela/assunta)
+  // rather than fabricating one live: POST /bookings requires a published,
+  // future-dated experience, so a fresh past booking can't be created
+  // through the API.
+
+  const fillerLogin = await request("POST", "/api/v1/auth/login", {
+    body: { email: "elena.russo@example.com", password: "password123" },
+  });
+  const fillerToken = fillerLogin.json?.token;
+
+  const guestBookingsForReviews = await request("GET", "/api/v1/bookings/me", {
+    token: guestToken,
+  });
+  const carmelaPastBooking = guestBookingsForReviews.json.find((b) =>
+    b.message?.startsWith("Non vedo l'ora"),
+  );
+  const assuntaPastBooking = guestBookingsForReviews.json.find((b) =>
+    b.message?.startsWith("Adoro la pizza"),
+  );
+  const receivedForReviews = await request("GET", "/api/v1/bookings/received", {
+    token: managerToken,
+  });
+  const receivedCarmela = receivedForReviews.json.find(
+    (b) => b._id === carmelaPastBooking?._id,
+  );
+  const receivedAssunta = receivedForReviews.json.find(
+    (b) => b._id === assuntaPastBooking?._id,
+  );
+
+  // 25. reviewable flags reflect eligibility + already-reviewed state
+  check(
+    "reviewable flags match seeded review state",
+    carmelaPastBooking?.reviewable === false &&
+      assuntaPastBooking?.reviewable === false &&
+      receivedCarmela?.reviewable === false &&
+      receivedAssunta?.reviewable === true,
+    `guest carmela=${carmelaPastBooking?.reviewable}, guest assunta=${assuntaPastBooking?.reviewable}, ` +
+      `received carmela=${receivedCarmela?.reviewable}, received assunta=${receivedAssunta?.reviewable}`,
+  );
+
+  // 26. reviewing an ineligible (still-pending) booking -> 409
+  const reviewPending = await request("POST", `/api/v1/bookings/${bookingC.json._id}/review`, {
+    token: guestToken,
+    body: { rating: 5 },
+  });
+  check(
+    "review rejected on ineligible booking",
+    reviewPending.status === 409,
+    `status ${reviewPending.status} (expected 409)`,
+  );
+
+  // 27. a non-participant (neither guest nor manager of this host) -> 403
+  const reviewNotParticipant = await request(
+    "POST",
+    `/api/v1/bookings/${carmelaPastBooking._id}/review`,
+    { token: fillerToken, body: { rating: 5 } },
+  );
+  check(
+    "review rejected for a non-participant",
+    reviewNotParticipant.status === 403,
+    `status ${reviewNotParticipant.status} (expected 403)`,
+  );
+
+  // 28. rating out of [0,5] bounds -> 400
+  const reviewOutOfBounds = await request(
+    "POST",
+    `/api/v1/bookings/${assuntaPastBooking._id}/review`,
+    { token: managerToken, body: { rating: 6 } },
+  );
+  check(
+    "review rejected for out-of-bounds rating",
+    reviewOutOfBounds.status === 400,
+    `status ${reviewOutOfBounds.status} (expected 400)`,
+  );
+
+  // 29. manager submits the seed's deliberately-missing hostToGuest review -> 201
+  const reviewCreated = await request(
+    "POST",
+    `/api/v1/bookings/${assuntaPastBooking._id}/review`,
+    { token: managerToken, body: { rating: 4, text: "Ottima ospite!" } },
+  );
+  check(
+    "manager reviews the guest",
+    reviewCreated.status === 201 && reviewCreated.json?.direction === "hostToGuest",
+    `status ${reviewCreated.status} (expected 201), direction ${reviewCreated.json?.direction}`,
+  );
+
+  // 29b. GET /users/:id: public-reputation subset only, never email/interests
+  const guestUserId = guestLogin.json?.user?._id;
+  const guestPublicProfile = await request("GET", `/api/v1/users/${guestUserId}`, {
+    token: managerToken,
+  });
+  check(
+    "GET /users/:id exposes public subset only, never email/interests",
+    guestPublicProfile.status === 200 &&
+      typeof guestPublicProfile.json?.name === "string" &&
+      typeof guestPublicProfile.json?.ratingAvg === "number" &&
+      typeof guestPublicProfile.json?.ratingCount === "number" &&
+      !guestPublicProfile.text.includes("email") &&
+      !guestPublicProfile.text.includes("interests"),
+    `status ${guestPublicProfile.status} (expected 200), body ${guestPublicProfile.text}`,
+  );
+
+  // 29c. GET /users/:id and /users/:id/reviews require authentication -> 401
+  const publicProfileNoAuth = await request("GET", `/api/v1/users/${guestUserId}`);
+  const publicReviewsNoAuth = await request(
+    "GET",
+    `/api/v1/users/${guestUserId}/reviews`,
+  );
+  check(
+    "GET /users/:id and /users/:id/reviews require authentication",
+    publicProfileNoAuth.status === 401 && publicReviewsNoAuth.status === 401,
+    `profile ${publicProfileNoAuth.status}, reviews ${publicReviewsNoAuth.status} (expected 401, 401)`,
+  );
+
+  // 30. double review, same direction -> 409 (both the fresh one and the seeded one)
+  const reviewDoubleFresh = await request(
+    "POST",
+    `/api/v1/bookings/${assuntaPastBooking._id}/review`,
+    { token: managerToken, body: { rating: 4 } },
+  );
+  const reviewDoubleSeeded = await request(
+    "POST",
+    `/api/v1/bookings/${carmelaPastBooking._id}/review`,
+    { token: guestToken, body: { rating: 5 } },
+  );
+  check(
+    "double review rejected in both directions",
+    reviewDoubleFresh.status === 409 && reviewDoubleSeeded.status === 409,
+    `fresh (hostToGuest) ${reviewDoubleFresh.status}, seeded (guestToHost) ${reviewDoubleSeeded.status} (expected 409, 409)`,
+  );
+
+  // 31. avg math on GET /hosts/:id/reviews and GET /users/me/reviews, and
+  // GET /users/:id/reviews (public-profile route) agrees with /users/me/reviews
+  // since both now read the same denormalized User.ratingAvg/ratingCount.
+  const hostsForReviews = await request("GET", "/api/v1/hosts/mine", { token: managerToken });
+  const carmelaId = hostsForReviews.json.find((h) => h.displayName === "Nonna Carmela")._id;
+  const carmelaReviews = await request("GET", `/api/v1/hosts/${carmelaId}/reviews`);
+  const myReviews = await request("GET", "/api/v1/users/me/reviews", { token: guestToken });
+  const guestReviewsByPublicId = await request(
+    "GET",
+    `/api/v1/users/${guestUserId}/reviews`,
+    { token: managerToken },
+  );
+  check(
+    "avg/count math correct on host and guest-reputation reviews",
+    carmelaReviews.status === 200 &&
+      carmelaReviews.json?.avg === 5 &&
+      carmelaReviews.json?.count === 1 &&
+      myReviews.status === 200 &&
+      myReviews.json?.avg === 4.5 &&
+      myReviews.json?.count === 2 &&
+      guestReviewsByPublicId.status === 200 &&
+      guestReviewsByPublicId.json?.avg === myReviews.json?.avg &&
+      guestReviewsByPublicId.json?.count === myReviews.json?.count,
+    `host reviews avg=${carmelaReviews.json?.avg} count=${carmelaReviews.json?.count}, ` +
+      `guest reviews (me) avg=${myReviews.json?.avg} count=${myReviews.json?.count}, ` +
+      `guest reviews (public :id) avg=${guestReviewsByPublicId.json?.avg} count=${guestReviewsByPublicId.json?.count}`,
+  );
+
+  // 32. catalog ranking: every rated host's experience precedes every
+  // unrated host's — structural, no hardcoded ids.
+  const catalog = await request("GET", "/api/v1/experiences");
+  const ratingFlags = catalog.json.map((e) => e.host.ratingAvg > 0);
+  const lastRatedIndex = ratingFlags.lastIndexOf(true);
+  const firstUnratedIndex = ratingFlags.indexOf(false);
+  check(
+    "catalog ranks rated hosts before unrated hosts",
+    firstUnratedIndex === -1 || lastRatedIndex < firstUnratedIndex,
+    `lastRatedIndex ${lastRatedIndex}, firstUnratedIndex ${firstUnratedIndex}`,
+  );
+
   await mongoose.disconnect();
   console.log(`\n${passed}/${passed + failed} passed${skipped ? `, ${skipped} skipped` : ""}`);
   process.exit(failed === 0 ? 0 : 1);

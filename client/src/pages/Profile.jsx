@@ -8,6 +8,7 @@ import {
 } from "../utils/profilePayload";
 import { apiErrorKey } from "../utils/apiError";
 import Avatar from "../components/Avatar.jsx";
+import ReviewList from "../components/ReviewList.jsx";
 
 function Profile() {
   const { user, authFetchJSON, updateUser } = useAuth();
@@ -17,6 +18,9 @@ function Profile() {
     loading,
     error: loadError,
   } = useAuthFetch("/api/v1/users/me");
+  const { data: myReviews, loading: myReviewsLoading } = useAuthFetch(
+    "/api/v1/users/me/reviews",
+  );
 
   const [values, setValues] = useState(null);
   const [error, setError] = useState(null);
@@ -156,6 +160,17 @@ function Profile() {
           {t("profile.save")}
         </button>
       </form>
+
+      <h2 className="mt-8 mb-1">{t("profile.reviewsTitle")}</h2>
+      <p className="m-0 mb-4 text-sm text-text-secondary">
+        {t("profile.reviewsSubtitle")}
+      </p>
+      {myReviewsLoading && (
+        <p className="text-text-secondary">{t("common.loading")}</p>
+      )}
+      {!myReviewsLoading && myReviews && (
+        <ReviewList reviews={myReviews.reviews} />
+      )}
     </section>
   );
 }

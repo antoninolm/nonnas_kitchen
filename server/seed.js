@@ -5,6 +5,8 @@ import connectDB from "./db.js";
 import User from "./models/User.js";
 import HostProfile from "./models/HostProfile.js";
 import Experience from "./models/Experience.js";
+import Booking from "./models/Booking.js";
+import Review from "./models/Review.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -106,6 +108,12 @@ const experiencesData = [
     address: "Via della Lungaretta 45, 00153 Roma",
     photos: ["https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800"],
     tags: ["pasta", "roman", "vegetarian"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Cacio e pepe", "Insalata di stagione", "Un bicchiere di vino bianco"],
+    languagesSpoken: ["Italiano", "un po' di inglese"],
+    conversationTopics: ["Ricette di famiglia", "Vita di quartiere a Trastevere"],
+    houseRules:
+      "Si mangia tutti insieme, niente telefoni a tavola. Togliersi le scarpe all'ingresso.",
   },
   {
     hostKey: "carmela",
@@ -123,6 +131,10 @@ const experiencesData = [
       "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800",
     ],
     tags: ["pasta", "roman"],
+    menu: ["Carbonara", "Puntarelle in insalata", "Torta di ricotta della casa"],
+    languagesSpoken: ["Italiano", "English"],
+    conversationTopics: ["Miti da sfatare sulla carbonara", "Aneddoti di famiglia"],
+    houseRules: "Guanciale sì, panna mai: qui si cucina secondo tradizione.",
   },
   {
     hostKey: "assunta",
@@ -138,6 +150,14 @@ const experiencesData = [
     address: "Via Toledo 112, 80134 Napoli",
     photos: ["https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800"],
     tags: ["pizza", "neapolitan"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Pizza Margherita", "Pizza Marinara", "Babà al rum"],
+    languagesSpoken: ["Italiano", "English"],
+    conversationTopics: [
+      "Segreti dell'impasto napoletano",
+      "Quartieri Spagnoli e la vita di Napoli",
+    ],
+    houseRules: "Il forno è acceso da ore: attenzione al calore vicino alla cucina.",
   },
   {
     hostKey: "assunta",
@@ -155,6 +175,11 @@ const experiencesData = [
       "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800",
     ],
     tags: ["dessert", "baking", "neapolitan"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Sfogliatella riccia", "Sfogliatella frolla", "Caffè napoletano"],
+    languagesSpoken: ["Italiano"],
+    conversationTopics: ["La pasticceria napoletana", "Ricordi di famiglia"],
+    houseRules: "Le mani in pasta: grembiule fornito, capelli legati.",
   },
   {
     hostKey: "salvatore",
@@ -172,6 +197,14 @@ const experiencesData = [
       "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800",
     ],
     tags: ["neapolitan", "sauce", "sunday-lunch"],
+    menu: ["Ragù napoletano con ziti spezzati", "Braciole", "Frutta di stagione"],
+    languagesSpoken: ["Italiano"],
+    conversationTopics: [
+      "La domenica napoletana",
+      "Storie di famiglia intorno al ragù",
+    ],
+    houseRules:
+      "Si resta a tavola almeno tre ore, come vuole la tradizione della domenica.",
   },
   {
     hostKey: "salvatore",
@@ -189,6 +222,12 @@ const experiencesData = [
       "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800",
     ],
     tags: ["dessert", "holiday", "neapolitan"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Struffoli", "Cioccolata calda"],
+    languagesSpoken: ["Italiano", "un po' di inglese"],
+    conversationTopics: ["Tradizioni natalizie napoletane", "Dolci delle feste"],
+    houseRules:
+      "Le mani appiccicose sono benvenute: si sporca, si ride, si mangia.",
   },
   {
     hostKey: "rosa",
@@ -206,6 +245,12 @@ const experiencesData = [
       "https://images.unsplash.com/photo-1607330289024-1535c6b4e1c1?w=800",
     ],
     tags: ["street-food", "roman", "vegetarian"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Supplì al telefono", "Fiori di zucca fritti", "Birra artigianale romana"],
+    languagesSpoken: ["Italiano", "English"],
+    conversationTopics: ["Cibo di strada romano", "Mercati storici di Roma"],
+    houseRules:
+      "Si cucina in piedi, come in una vera friggitoria: spazio ristretto, divertimento assicurato.",
   },
   {
     hostKey: "rosa",
@@ -223,6 +268,11 @@ const experiencesData = [
       "https://images.unsplash.com/photo-1607330289024-1535c6b4e1c1?w=800",
     ],
     tags: ["pasta", "roman"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Tonnarelli cacio e pepe fatti a mano"],
+    languagesSpoken: ["Italiano"],
+    conversationTopics: ["L'arte della pasta fresca", "Vita di quartiere a Testaccio"],
+    houseRules: "Farina ovunque: vestiti comodi consigliati.",
   },
   {
     hostKey: "pina",
@@ -240,6 +290,118 @@ const experiencesData = [
       "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=800",
     ],
     tags: ["dessert", "easter", "baking", "neapolitan"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Pastiera napoletana", "Taralli dolci", "Spumante per il brindisi"],
+    languagesSpoken: ["Italiano", "English"],
+    conversationTopics: [
+      "Tradizioni pasquali napoletane",
+      "Ricordi di famiglia intorno alla pastiera",
+    ],
+    houseRules:
+      "La pastiera riposa una notte: si assaggia il giorno dopo, pazienza è la regola della casa.",
+  },
+  // Past experiences (Task 41): status "completed" keeps them out of the
+  // public catalog/host page (both filter status=published, with no
+  // default date floor), while still backing a confirmed+paid past
+  // booking so reviews are demoable.
+  {
+    key: "carmelaPast",
+    hostKey: "carmela",
+    title: "Sunday Cacio e Pepe with Nonna Carmela",
+    recipeName: "Cacio e Pepe",
+    story:
+      "Una ricetta di soli tre ingredienti, ma che richiede una mano esperta. Carmela vi insegnerà il gesto giusto per la mantecatura perfetta.",
+    daysFromNow: -10,
+    durationMin: 150,
+    price: 5500,
+    seatsTotal: 6,
+    seatsBooked: 1,
+    address: "Via della Lungaretta 45, 00153 Roma",
+    photos: ["https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800"],
+    tags: ["pasta", "roman", "vegetarian"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Cacio e pepe", "Insalata di stagione", "Un bicchiere di vino bianco"],
+    languagesSpoken: ["Italiano", "un po' di inglese"],
+    conversationTopics: ["Ricette di famiglia", "Vita di quartiere a Trastevere"],
+    houseRules:
+      "Si mangia tutti insieme, niente telefoni a tavola. Togliersi le scarpe all'ingresso.",
+    status: "completed",
+  },
+  {
+    key: "assuntaPast",
+    hostKey: "assunta",
+    title: "Neapolitan Pizza Night",
+    recipeName: "Pizza Napoletana",
+    story:
+      "Impasto a lunga lievitazione, pomodoro San Marzano e fior di latte. Assunta vi mostra come nasce una vera pizza napoletana, dal forno di casa sua.",
+    daysFromNow: -18,
+    durationMin: 210,
+    price: 7000,
+    seatsTotal: 8,
+    seatsBooked: 1,
+    address: "Via Toledo 112, 80134 Napoli",
+    photos: ["https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800"],
+    tags: ["pizza", "neapolitan"],
+    dietaryOptions: ["vegetariano"],
+    menu: ["Pizza Margherita", "Pizza Marinara", "Babà al rum"],
+    languagesSpoken: ["Italiano", "English"],
+    conversationTopics: [
+      "Segreti dell'impasto napoletano",
+      "Quartieri Spagnoli e la vita di Napoli",
+    ],
+    houseRules: "Il forno è acceso da ore: attenzione al calore vicino alla cucina.",
+    status: "completed",
+  },
+];
+
+const bookingsData = [
+  {
+    key: "carmelaPastBooking",
+    experienceKey: "carmelaPast",
+    guestKey: "guest",
+    seats: 1,
+    message: "Non vedo l'ora di imparare la vera cacio e pepe!",
+    status: "confirmed",
+    paid: true,
+  },
+  {
+    key: "assuntaPastBooking",
+    experienceKey: "assuntaPast",
+    guestKey: "guest",
+    seats: 1,
+    message: "Adoro la pizza napoletana, grazie per l'invito!",
+    status: "confirmed",
+    paid: true,
+  },
+];
+
+// The second booking's hostToGuest direction is deliberately left
+// unreviewed, so a live "leave a review" CTA and a real POST .../review
+// call remain exercisable after seeding (manual testing + smoke test).
+const reviewsData = [
+  {
+    bookingKey: "carmelaPastBooking",
+    direction: "guestToHost",
+    authorKey: "guest",
+    targetHostKey: "carmela",
+    rating: 5,
+    text: "Esperienza bellissima, la cacio e pepe di Carmela è perfetta!",
+  },
+  {
+    bookingKey: "carmelaPastBooking",
+    direction: "hostToGuest",
+    authorKey: "manager",
+    targetUserKey: "guest",
+    rating: 5,
+    text: "Ospite fantastica, puntuale e curiosa di imparare.",
+  },
+  {
+    bookingKey: "assuntaPastBooking",
+    direction: "guestToHost",
+    authorKey: "guest",
+    targetHostKey: "assunta",
+    rating: 4,
+    text: "Pizza buonissima, serata molto piacevole.",
   },
 ];
 
@@ -258,8 +420,12 @@ async function seed() {
     User.deleteMany({}),
     HostProfile.deleteMany({}),
     Experience.deleteMany({}),
+    Booking.deleteMany({}),
+    Review.deleteMany({}),
   ]);
-  console.log("Cleared existing users, host profiles and experiences");
+  console.log(
+    "Cleared existing users, host profiles, experiences, bookings and reviews",
+  );
 
   const hashedUsers = await Promise.all(
     usersData.map(async ({ key, password, ...rest }) => ({
@@ -285,14 +451,46 @@ async function seed() {
   console.log(`Created ${createdHosts.length} host profiles`);
 
   const createdExperiences = await Experience.create(
-    experiencesData.map(({ hostKey, daysFromNow, ...rest }) => ({
+    experiencesData.map(({ hostKey, daysFromNow, key, status, ...rest }) => ({
       ...rest,
       host: hostIdByKey[hostKey],
       date: new Date(Date.now() + daysFromNow * DAY_MS),
-      status: "published",
+      status: status ?? "published",
     })),
   );
+  const experienceIdByKey = Object.fromEntries(
+    experiencesData
+      .map((e, i) => [e.key, createdExperiences[i]._id])
+      .filter(([key]) => key !== undefined),
+  );
   console.log(`Created ${createdExperiences.length} experiences`);
+
+  const createdBookings = await Booking.create(
+    bookingsData.map(({ key, experienceKey, guestKey, ...rest }) => ({
+      ...rest,
+      experience: experienceIdByKey[experienceKey],
+      guest: userIdByKey[guestKey],
+    })),
+  );
+  const bookingIdByKey = Object.fromEntries(
+    bookingsData.map((b, i) => [b.key, createdBookings[i]._id]),
+  );
+  console.log(`Created ${createdBookings.length} bookings`);
+
+  await Review.create(
+    reviewsData.map(
+      ({ bookingKey, authorKey, targetHostKey, targetUserKey, ...rest }) => ({
+        ...rest,
+        booking: bookingIdByKey[bookingKey],
+        author: userIdByKey[authorKey],
+        ...(targetHostKey && { targetHost: hostIdByKey[targetHostKey] }),
+        ...(targetUserKey && { targetUser: userIdByKey[targetUserKey] }),
+      }),
+    ),
+  );
+  await Review.recomputeHostRating(hostIdByKey.carmela);
+  await Review.recomputeHostRating(hostIdByKey.assunta);
+  console.log(`Created ${reviewsData.length} reviews`);
 
   console.log("Seed complete. Demo logins (password: password123):");
   console.log("  manager@demo.com — manages Nonna Carmela and Nonna Assunta");

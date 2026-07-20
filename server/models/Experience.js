@@ -18,6 +18,11 @@ const experienceSchema = new mongoose.Schema(
     address: { type: String, required: true, select: false },
     photos: [{ type: String }],
     tags: [{ type: String }],
+    dietaryOptions: [{ type: String }],
+    menu: [{ type: String }],
+    languagesSpoken: [{ type: String }],
+    conversationTopics: [{ type: String }],
+    houseRules: { type: String, maxlength: 500 },
     status: {
       type: String,
       enum: ["draft", "published", "completed", "cancelled"],
