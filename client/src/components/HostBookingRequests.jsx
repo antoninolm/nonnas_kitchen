@@ -80,15 +80,16 @@ function HostBookingRequests({ hostId, onChange = () => {} }) {
                 >
                   {t(`dashboard.bookings.status.${booking.status}`)}
                 </span>
-                {booking.paid ? (
-                  <span className="text-sm font-medium text-success">
-                    {t("dashboard.bookings.paid")}
-                  </span>
-                ) : (
-                  <span className="text-sm text-text-secondary">
-                    {t("dashboard.bookings.unpaid")}
-                  </span>
-                )}
+                {booking.status !== "cancelled" &&
+                  (booking.paid ? (
+                    <span className="text-sm font-medium text-success">
+                      {t("dashboard.bookings.paid")}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-text-secondary">
+                      {t("dashboard.bookings.unpaid")}
+                    </span>
+                  ))}
               </p>
               {booking.status === "pending" && (
                 <span className="mt-2 flex gap-3">
